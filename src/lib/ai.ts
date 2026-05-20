@@ -4,8 +4,8 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use a reliable free model
-const DEFAULT_MODEL = 'anthropic/claude-3-haiku';
+// Use OpenRouter's automatic free model selection
+const DEFAULT_MODEL = 'openrouter/free';
 
 // ============================================
 // Type definitions
