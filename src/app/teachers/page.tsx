@@ -52,19 +52,19 @@ export default async function TeachersPage() {
               <Link
                 key={teacher.id}
                 href={`/teachers/${teacher.id}`}
-                className="group block rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:border-teal-500 hover:shadow-md"
+                className="group block rounded-xl border border-border bg-bg-card p-6 shadow-sm transition-all duration-200 hover:border-accent hover:shadow-md"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-teal-50">
-                    <GraduationCap className="h-6 w-6 text-teal-600" />
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-accent-light">
+                    <GraduationCap className="h-6 w-6 text-accent" />
                   </div>
                   <div>
-                    <h2 className="text-text-primary text-lg font-semibold group-hover:text-teal-600">
+                    <h2 className="text-lg font-semibold text-text-primary group-hover:text-accent">
                       {teacher.name}
                     </h2>
-                    <p className="text-text-secondary mt-1 text-sm">{teacher.subject}</p>
+                    <p className="mt-1 text-sm text-text-secondary">{teacher.subject}</p>
                     {teacher.bio && (
-                      <p className="text-text-secondary mt-2 text-sm line-clamp-2">
+                      <p className="mt-2 text-sm line-clamp-2 text-text-secondary">
                         {teacher.bio}
                       </p>
                     )}

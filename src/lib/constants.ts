@@ -3,9 +3,9 @@
 // ============================================
 
 export const siteConfig = {
-  name: 'My Template',
-  description: 'A reusable Next.js template for any website project.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com',
+  name: 'Constructive Feedback',
+  description: 'A supportive platform where students can share feedback to help teachers grow.',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   ogImage: '/og-image.png',
   location: 'Surrey, United Kingdom',
   links: {
@@ -27,10 +27,10 @@ export const siteConfig = {
 // ============================================
 
 export const meta = {
-  title: 'My Template',
-  description: 'A reusable Next.js template for any website project.',
-  keywords: ['template', 'nextjs', 'website', 'portfolio'] as string[],
-  siteName: 'My Template',
+  title: 'Constructive Feedback for Teachers',
+  description: 'A supportive platform where students can share feedback to help teachers grow.',
+  keywords: ['education', 'feedback', 'teachers', 'support'] as string[],
+  siteName: 'Constructive Feedback',
   twitter: '@yourhandle',
   instagramHandle: '@yourhandle',
 };
@@ -41,20 +41,17 @@ export const meta = {
 
 export const mainNav = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Teachers', href: '/teachers' },
 ];
 
 export const footerNav = {
   main: [
     { label: 'Home', href: '/' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Teachers', href: '/teachers' },
   ],
   content: [
     { label: 'Home', href: '/' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Teachers', href: '/teachers' },
   ],
   social: [
     { label: 'YouTube', href: siteConfig.links.youtube },
