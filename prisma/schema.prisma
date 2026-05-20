@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Model - for authentication
+// ============================================
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  feedback Feedback[]
+}
+
+// ============================================
+// Teacher Model - pre-created profiles
+// ============================================
+model Teacher {
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  bio         String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  feedback   Feedback[]
+  summary    TeacherSummary?
+}
+
+// ============================================
+// Feedback Model - user submissions
+// ============================================
+model Feedback {
+  id              String   @id @default(cuid())
+  teacherId      String
+  userId         String?
+  
+  rawText        String   @db.Text
+  
+  // AI moderation results
+  isApproved     Boolean  @default(false)
+  category       String   @default("other") // "constructive", "neutral", "insulting", "other"
+  usefulnessScore Float   @default(0)
+  tags           String[] @default([])
+  
+  createdAt      DateTime @default(now())
+  
+  teacher        Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([teacherId])
+  @@index([userId])
+  @@index([isApproved])
+}
+
+// ============================================
+// TeacherSummary Model - cached AI-generated summaries
+// ============================================
+model TeacherSummary {
+  id                   String   @id @default(cuid())
+  teacherId            String   @unique
+  
+  overallThemes        String   @db.Text
+  strengthHighlights  String   @db.Text
+  growthOpportunities String  @db.Text
+  safeParaphrasedComments String @db.Text
+  
+  updatedAt           DateTime  @default(now())
+  
+  teacher             Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  @@index([teacherId])
+}
