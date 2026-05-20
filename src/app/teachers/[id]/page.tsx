@@ -44,18 +44,18 @@ export default async function TeacherPage({
       <div className="container">
         <div className="mx-auto max-w-3xl">
           {/* Teacher Header */}
-          <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-8 rounded-xl border border-border bg-bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-teal-50">
-                <GraduationCap className="h-7 w-7 text-teal-600" />
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent-light">
+                <GraduationCap className="h-7 w-7 text-accent" />
               </div>
               <div>
-                <h1 className="text-text-primary text-2xl font-bold">
+                <h1 className="text-2xl font-bold text-text-primary">
                   {teacher.name}
                 </h1>
-                <p className="text-text-secondary mt-1 text-lg">{teacher.subject}</p>
+                <p className="text-lg text-text-secondary mt-1">{teacher.subject}</p>
                 {teacher.bio && (
-                  <p className="text-text-secondary mt-3">{teacher.bio}</p>
+                  <p className="mt-3 text-text-secondary">{teacher.bio}</p>
                 )}
               </div>
             </div>
@@ -65,49 +65,49 @@ export default async function TeacherPage({
           {summary && (
             <div className="space-y-6">
               {/* Overall Themes */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-teal-600" />
-                  <h2 className="text-text-primary text-lg font-semibold">
+                  <Lightbulb className="h-5 w-5 text-accent" />
+                  <h2 className="text-lg font-semibold text-text-primary">
                     Overall Themes
                   </h2>
                 </div>
-                <p className="text-text-secondary mt-3">{summary.overallThemes}</p>
+                <p className="mt-3 text-text-secondary">{summary.overallThemes}</p>
               </div>
 
               {/* Strength Highlights */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-teal-600" />
-                  <h2 className="text-text-primary text-lg font-semibold">
+                  <TrendingUp className="h-5 w-5 text-accent" />
+                  <h2 className="text-lg font-semibold text-text-primary">
                     Strengths
                   </h2>
                 </div>
-                <p className="text-text-secondary mt-3">{summary.strengthHighlights}</p>
+                <p className="mt-3 text-text-secondary">{summary.strengthHighlights}</p>
               </div>
 
               {/* Growth Opportunities */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-teal-600" />
-                  <h2 className="text-text-primary text-lg font-semibold">
+                  <TrendingUp className="h-5 w-5 text-accent" />
+                  <h2 className="text-lg font-semibold text-text-primary">
                     Growth Opportunities
                   </h2>
                 </div>
-                <p className="text-text-secondary mt-3">
+                <p className="mt-3 text-text-secondary">
                   {summary.growthOpportunities}
                 </p>
               </div>
 
               {/* Safe Paraphrased Comments */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-teal-600" />
-                  <h2 className="text-text-primary text-lg font-semibold">
+                  <MessageCircle className="h-5 w-5 text-accent" />
+                  <h2 className="text-lg font-semibold text-text-primary">
                     What Students Are Saying
                   </h2>
                 </div>
-                <p className="text-text-secondary mt-3">
+                <p className="mt-3 text-text-secondary">
                   {summary.safeParaphrasedComments}
                 </p>
               </div>
@@ -115,8 +115,8 @@ export default async function TeacherPage({
           )}
 
           {!summary && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <p className="text-text-secondary text-center">
+            <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+              <p className="text-center text-text-secondary">
                 No feedback summary available yet. Be the first to share constructive
                 feedback!
               </p>
@@ -128,10 +128,10 @@ export default async function TeacherPage({
             {session?.user ? (
               <FeedbackForm teacherId={teacher.id} />
             ) : (
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p className="text-text-secondary text-center">
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+                <p className="text-center text-text-secondary">
                   Please{' '}
-                  <a href="/login" className="text-teal-600 hover:underline">
+                  <a href="/login" className="text-accent hover:underline">
                     sign in
                   </a>{' '}
                   to share feedback.
