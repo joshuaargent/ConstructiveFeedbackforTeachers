@@ -4,8 +4,8 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use Owl model (user's preferred coding model)
-const DEFAULT_MODEL = 'mcgill-hamilton/owl-7b-instruct';
+// Use Mistral - very stable and free on OpenRouter
+const DEFAULT_MODEL = 'mistral/mistral-7b-instruct';
 
 // ============================================
 // Type definitions
