@@ -4,8 +4,8 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use Mistral - very stable and free on OpenRouter
-const DEFAULT_MODEL = 'mistral/mistral-7b-instruct';
+// Use DeepSeek V4 Flash - popular free model
+const DEFAULT_MODEL = 'deepseek/deepseek-chat';
 
 // ============================================
 // Type definitions
