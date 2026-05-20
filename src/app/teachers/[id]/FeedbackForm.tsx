@@ -49,11 +49,11 @@ export function FeedbackForm({ teacherId }: FeedbackFormProps) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="text-text-primary mb-4 text-lg font-semibold">
+    <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-text-primary">
         Share Your Feedback
       </h2>
-      <p className="text-text-secondary mb-4 text-sm">
+      <p className="mb-4 text-sm text-text-secondary">
         Your feedback helps teachers grow. Please be constructive and respectful.
       </p>
 
@@ -61,8 +61,8 @@ export function FeedbackForm({ teacherId }: FeedbackFormProps) {
         <div
           className={`mb-4 rounded-lg p-3 text-sm ${
             message.type === 'success'
-              ? 'bg-green-50 text-green-700'
-              : 'bg-red-50 text-red-700'
+              ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
           }`}
         >
           {message.text}
@@ -74,14 +74,14 @@ export function FeedbackForm({ teacherId }: FeedbackFormProps) {
           value={feedbackText}
           onChange={(e) => setFeedbackText(e.target.value)}
           placeholder="Share constructive feedback about this teacher..."
-          className="text-text-primary w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="w-full rounded-lg border border-border bg-bg-secondary p-3 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           rows={5}
           disabled={isSubmitting}
         />
         <button
           type="submit"
           disabled={isSubmitting || !feedbackText.trim()}
-          className="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-teal-600 px-4 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-accent px-4 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
         </button>

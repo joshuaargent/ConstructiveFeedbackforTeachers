@@ -58,13 +58,13 @@ export default function RegisterPage() {
     <section className="py-12 md:py-16">
       <div className="container">
         <div className="mx-auto max-w-md">
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h1 className="text-text-primary mb-6 text-2xl font-bold text-center">
+          <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+            <h1 className="mb-6 text-2xl font-bold text-center text-text-primary">
               Create Account
             </h1>
 
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+              <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400">
                 {error}
               </div>
             )}
@@ -73,7 +73,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor="name"
-                  className="text-text-primary mb-1 block text-sm font-medium"
+                  className="mb-1 block text-sm font-medium text-text-primary"
                 >
                   Name (optional)
                 </label>
@@ -82,14 +82,14 @@ export default function RegisterPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="text-text-primary w-full rounded-lg border border-gray-300 p-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full rounded-lg border border-border bg-bg-secondary p-2.5 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="email"
-                  className="text-text-primary mb-1 block text-sm font-medium"
+                  className="mb-1 block text-sm font-medium text-text-primary"
                 >
                   Email
                 </label>
@@ -99,14 +99,14 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="text-text-primary w-full rounded-lg border border-gray-300 p-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full rounded-lg border border-border bg-bg-secondary p-2.5 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="password"
-                  className="text-text-primary mb-1 block text-sm font-medium"
+                  className="mb-1 block text-sm font-medium text-text-primary"
                 >
                   Password
                 </label>
@@ -117,14 +117,14 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="text-text-primary w-full rounded-lg border border-gray-300 p-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full rounded-lg border border-border bg-bg-secondary p-2.5 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="text-text-primary mb-1 block text-sm font-medium"
+                  className="mb-1 block text-sm font-medium text-text-primary"
                 >
                   Confirm Password
                 </label>
@@ -135,22 +135,22 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="text-text-primary w-full rounded-lg border border-gray-300 p-2.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  className="w-full rounded-lg border border-border bg-bg-secondary p-2.5 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full inline-flex h-11 items-center justify-center rounded-lg bg-teal-600 px-4 text-base font-medium text-white transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-accent px-4 text-base font-medium text-white transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoading ? 'Creating account...' : 'Create Account'}
               </button>
             </form>
 
-            <p className="text-text-secondary mt-4 text-center text-sm">
+            <p className="mt-4 text-center text-sm text-text-secondary">
               Already have an account?{' '}
-              <Link href="/login" className="text-teal-600 hover:underline">
+              <Link href="/login" className="text-accent hover:underline">
                 Sign in
               </Link>
             </p>

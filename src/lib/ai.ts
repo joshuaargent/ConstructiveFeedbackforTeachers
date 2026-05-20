@@ -4,8 +4,8 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use a reliable free model
-const DEFAULT_MODEL = 'anthropic/claude-3-haiku';
+// Use completely free model - Qwen is free on OpenRouter
+const DEFAULT_MODEL = 'qwen/qwen-2.5-72b-instruct';
 
 // ============================================
 // Type definitions
