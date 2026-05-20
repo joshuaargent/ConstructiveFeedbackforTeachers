@@ -4,8 +4,8 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use DeepSeek V4 Flash - popular free model
-const DEFAULT_MODEL = 'deepseek/deepseek-chat';
+// Use OpenRouter's automatic free model selection
+const DEFAULT_MODEL = 'openrouter/free';
 
 // ============================================
 // Type definitions
