@@ -1,35 +1,18 @@
 # Constructive Feedback for Teachers
 
-A platform for students to share constructive feedback with teachers, designed to protect against reputational harm and content that could get the site banned.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-blue)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-blue)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8)](https://tailwindcss.com)
 
-## Purpose
+Platform for students to share constructive feedback with teachers. Designed to protect against reputational harm and content that could get the site banned.
 
-- Help teachers receive useful, actionable feedback from students
-- Protect the platform from content that could lead to bans (hatespeech, threats, personal attacks)
-- Aggregate feedback into summaries so teachers don't see individual comments
+## Features
 
-## How It Works
-
-1. **Student submits feedback** → AI moderates it
-2. **Auto-approve**: Only truly constructive feedback is automatically included in summaries
-3. **Manual review**: Everything else (neutral, insulting, other) requires manual approval
-4. **Aggregated summary**: Teachers see AI-generated themes, never individual feedback
-
-### Auto-Approval Criteria
-
-Feedback must be **specific** AND **actionable**:
-
-```
-constructive: "too fast" - valid concern ✓
-constructive: "great explanations" - specific praise ✓
-constructive: "more examples would help" - actionable ✓
-
-neutral: "boring" - too vague
-neutral: "okay" - too brief  
-
-insulting: "teacher is worthless" - personal attack
-insulting: "good but he's lazy" - mixed (one bad = insulting)
-```
+- AI-powered moderation to block harmful content
+- Aggregated feedback summaries (teachers never see individual comments)
+- Conservative auto-approval (only truly constructive feedback)
+- Manual review queue for edge cases
 
 ## Tech Stack
 
@@ -40,7 +23,30 @@ insulting: "good but he's lazy" - mixed (one bad = insulting)
 | UI | React 19 + Tailwind CSS |
 | Database | PostgreSQL + Prisma |
 | Auth | NextAuth.js |
-| AI | OpenRouter (Nemotron 3 Super, Nemotron Nano) |
+| AI | OpenRouter (Nemotron 3 Super, Nemotron Nano, free) |
+
+## Project Structure
+
+```
+constructive-feedback/
+├── prisma/
+│   └── schema.prisma       # Database schema
+├── src/
+│   ├── app/
+│   │   ├── actions/       # Server actions
+│   │   ├── api/          # API routes
+│   │   ├── teachers/     # Teacher pages
+│   │   └── login/        # Auth pages
+│   ├── components/        # React components
+│   ├── lib/
+│   │   ├── ai.ts        # AI moderation
+│   │   ├── auth.ts      # NextAuth config
+│   │   └── db.ts       # Prisma client
+│   └── styles/          # CSS
+├── .env.example         # Env template
+├── next.config.ts
+└── package.json
+```
 
 ## Getting Started
 
@@ -67,19 +73,52 @@ npm run dev
 | `NEXTAUTH_URL` | App URL |
 | `OPENROUTER_API_KEY` | OpenRouter API key |
 
-## AI Models
+## Available Scripts
 
-Uses OpenRouter with 3-tier fallback:
-1. NVIDIA Nemotron 3 Super 120B
-2. NVIDIA Nemotron Nano 9B
-3. openrouter/free (ultimate fallback)
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run type-check` | TypeScript check |
+| `npm run db:push` | Push database schema |
+
+## How It Works
+
+1. Student submits feedback
+2. AI moderates:
+   - `constructive` → auto-add to summary
+   - `neutral`/`insulting`/`other` → manual review
+3. Teacher sees AI-generated summary only
+
+### Auto-Approval Criteria
+
+| Category | Example | Auto-Approve? |
+|----------|----------|---------------|
+| constructive | "too fast" | ✓ |
+| constructive | "great explanations" | ✓ |
+| neutral | "boring" | ✗ |
+| neutral | "okay" | ✗ |
+| insulting | "teacher is useless" | ✗ |
+| insulting | "good but he's lazy" | ✗ |
+
+**Rule**: Mixed feedback = insulting (manual review)
 
 ## Safety Features
 
-- **Mixed feedback blocked**: "good but he's lazy" = insulting (manual review)
-- **Individual feedback hidden**: Teachers only see summaries
-- **Conservative auto-approve**: Only constructive = auto-show
-- **AI falls back safely**: On error, defaults to manual review
+- Teachers see only aggregated summaries, never individual feedback
+- Mixed constructive + insulting = goes to manual review
+- AI errors default to manual review (fail-safe)
+- Personal attacks always blocked
+
+## Code Quality
+
+| Check | Status |
+|-------|--------|
+| TypeScript | No type errors |
+| Build | Compiles successfully |
+| Lint | Passes |
 
 ## License
 
