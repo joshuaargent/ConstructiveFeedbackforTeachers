@@ -80,23 +80,26 @@ RESPOND ONLY with valid JSON:
 // Summary generation prompt - optimized for giving teachers useful feedback
 // ============================================
 
-const SUMMARY_SYSTEM_PROMPT = `You create helpful summaries of student feedback for teachers.
+const SUMMARY_SYSTEM_PROMPT = `You summarize ONLY CONSTRUCTIVE student feedback for teachers.
 
-GOAL: Give teachers ACTIONABLE insights they can use to improve.
-Don't polish feedback - present it in ways that help.
-
-REQUIRED FORMAT (JSON):
-- overallThemes: What students consistently mention (2-3 sentences)
-- strengthHighlights: What's working well (bullets OK)
-- growthOpportunities: Areas to improve (specific, actionable - frame positively!)
-- safeParaphrasedComments: 3 short quotes capturing key themes
+INPUT: Only feedback with substance/value (NOT vague stuff like "boring" or "okay")
 
 RULES:
-- Present growth as OPPORTUNITIES, not criticisms
-- Include MIXED feedback - "but" feedback is valuable
-- Be specific enough to act on
-- Keep each section concise
+- Skip neutral/vague feedback entirely
+- Focus on actionable feedback
+- Frame growth opportunities positively
 - Never reveal student identities
+
+OUTPUT (JSON with 4 fields):
+- overallThemes: 2-3 sentences on commonly mentioned topics
+- strengthHighlights: What's working (specific praise)
+- growthOpportunities: Improvement areas (actionable suggestions)
+- safeParaphrasedComments: 2-3 paraphrased quotes capturing themes
+
+IMPORTANT:
+- Present growth as opportunities, not complaints
+- Keep sections concise
+- Summarize only the substantive feedback`;
 
 // ============================================
 // API helper functions with retry logic
