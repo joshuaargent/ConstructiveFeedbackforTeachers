@@ -17,7 +17,10 @@ import './globals.css';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#FAFAF9',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAFAF9' },
+    { media: '(prefers-color-scheme: dark)', color: '#0C0A09' },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -31,12 +34,24 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.author.name }],
   creator: siteConfig.author.name,
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
+    icon: [
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/icon1.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', type: 'image/png' },
+    ],
+    other: [
+      { url: '/icon1.png', type: 'image/png', sizes: '180x180', rel: 'apple-touch-icon' },
+      { url: '/web-app-manifest-192x192.png', type: 'image/png', sizes: '192x192', rel: 'apple-touch-icon' },
+      { url: '/web-app-manifest-512x512.png', type: 'image/png', sizes: '512x512', rel: 'apple-touch-icon' },
+    ],
   },
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    title: 'Joshua Argent',
+    title: siteConfig.name,
+    statusBarStyle: 'black-translucent',
   },
   openGraph: {
     type: 'website',

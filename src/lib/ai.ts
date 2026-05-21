@@ -4,8 +4,18 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use OpenRouter's free model routing - automatically uses free credits
-const DEFAULT_MODEL = 'openrouter/free';
+// Use specific free models sorted by capability (best first)
+// These models support JSON output and are ranked by performance
+const FREE_MODELS = [
+  'google/gemma-4-31b-it:free',              // Gemma 4 31B - Best overall
+  'google/gemma-4-26b-a4b-it:free',          // Gemma 4 26B A4B - Strong alternative
+  'nvidia/nemotron-3-super-120b-a12b:free', // Nemotron 3 Super - Large but capable
+  'nvidia/nemotron-nano-9b-v2-velarde:free', // Nemotron Nano 9B V2 - Fast fallback
+  'openrouter/free',                         // Last resort fallback
+];
+
+// Maximum retries for transient failures
+const MAX_RETRIES = 3;
 
 // ============================================
 // Type definitions
@@ -25,19 +35,41 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt (optimized for quality)
+// Moderation prompt - balanced conservative for safety
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are an expert feedback classifier for student feedback about teachers.
+const MODERATION_SYSTEM_PROMPT = `You are a conservative feedback classifier for teacher evaluations.
 
-Classify each feedback:
-- constructive: Helpful, specific, actionable
-- neutral: OK but vague/general
-- insulting: Personal attacks, name-calling, hostility
-- other: Spam, unclear
+SAFETY FIRST: Err on the side of caution. Borderline content = insulting.
 
-Rate usefulness 0-1 based on actionability.
-Extract 2-5 topic tags like "communication", "organization", "clarity", "pace".
+APPROVAL RULE:
+- "constructive": ONLY if ALL true:
+  * Genuinely positive framing (praise what's working)
+  * Specific and actionable
+  * No negativity, criticism, or complaints
+  * No "but", "however", or suggested improvements
+  
+- "neutral": ONLY vague positivity like "they're fine" or "good teacher"
+- "insulting": EVERYTHING else including:
+  * Any criticism even framed as "suggestion"
+  * Any negativity about ability/skip
+  * Any comparisons to other teachers
+  * Any "could", "would be nice", "should"
+  * Tone issues, "whatever", frustration
+  
+- "other": Spam, unclear
+
+STRICT EXAMPLES showing what PASSES:
+✅ "explains concepts clearly" = constructive
+✅ "very knowledgeable" = constructive
+✅ "patient and helpful" = constructive
+✅ "makes lessons engaging" = constructive
+
+WHAT FAILS (insulting):
+❌ "could use more examples" = insulting (suggestion)
+❌ "sometimes confusing" = insulting (criticism)
+❌ "better than last year" = insulting (comparison)
+❌ "explains okay I guess" = insulting (borderline)
 
 Respond ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
@@ -70,10 +102,14 @@ Response format (JSON):
 async function callOpenRouter(
   userMessage: string,
   systemPrompt: string,
+  retryCount = 0,
 ): Promise<unknown> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not set');
   }
+
+  // Rotate through models on each retry attempt
+  const currentModel = FREE_MODELS[retryCount % FREE_MODELS.length];
 
   try {
     const response = await fetch(OPENROUTER_API_URL, {
@@ -85,7 +121,7 @@ async function callOpenRouter(
         'X-Title': 'Constructive Feedback for Teachers',
       },
       body: JSON.stringify({
-        model: DEFAULT_MODEL,
+        model: currentModel,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -97,6 +133,12 @@ async function callOpenRouter(
 
     if (!response.ok) {
       const errorText = await response.text();
+
+      // Retry on rate limit (429) or server errors (500+) - try next model
+      if ((response.status === 429 || response.status >= 500) && retryCount < MAX_RETRIES) {
+        console.log(`[AI] Retrying with ${currentModel} after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+        return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
+      }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
@@ -109,6 +151,11 @@ async function callOpenRouter(
 
     return JSON.parse(content);
   } catch (error) {
+    // Retry on parse errors or network issues - try next model
+    if (retryCount < MAX_RETRIES) {
+      console.log(`[AI] Retrying after error with next model: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
+    }
     throw error;
   }
 }
@@ -118,10 +165,11 @@ async function callOpenRouter(
 // ============================================
 
 /**
- * Moderates feedback text using AI
+ * Moderates feedback text using AI - double check for safety
  * Returns category, usefulness score, and tags
  */
 export async function moderateFeedback(feedbackText: string): Promise<ModerationResult> {
+  // First pass - main classification
   const result = await callOpenRouter(
     `Feedback to classify:\n\n${feedbackText}`,
     MODERATION_SYSTEM_PROMPT,
@@ -138,9 +186,10 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
     throw new Error('Invalid moderation result from AI');
   }
 
+  // Determine final category (default to 'other' if invalid)
   const validCategories = ['constructive', 'neutral', 'insulting', 'other'];
   const rawCategory = String(result.category);
-  const category = validCategories.includes(rawCategory)
+  const finalCategory = validCategories.includes(rawCategory)
     ? rawCategory as 'constructive' | 'neutral' | 'insulting' | 'other'
     : 'other';
 
@@ -152,7 +201,7 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
   const tags = Array.isArray(result.tags) ? result.tags : [];
 
   return {
-    category,
+    category: finalCategory,
     usefulnessScore,
     tags,
   };

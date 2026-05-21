@@ -42,6 +42,8 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
     console.log('[FEEDBACK] AI result:', JSON.stringify(moderationResult));
   } catch (aiError) {
     console.error('[FEEDBACK] AI moderation error:', aiError);
+    // CRITICAL: When AI fails, default to 'other' which requires manual review
+    // This ensures insults don't slip through when the AI is unavailable
     moderationResult = {
       category: 'other',
       usefulnessScore: 0,
@@ -50,12 +52,14 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
   }
 
   // Create feedback entry
+  // Only constructive feedback auto-approves (true praise)
+  // All other categories require review
   const feedback = await prisma.feedback.create({
     data: {
       teacherId,
       userId: session.user.id,
       rawText: feedbackText,
-      isApproved: moderationResult.category !== 'insulting',
+      isApproved: moderationResult.category === 'constructive',
       category: moderationResult.category,
       usefulnessScore: moderationResult.usefulnessScore,
       tags: moderationResult.tags,
