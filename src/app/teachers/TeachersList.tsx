@@ -167,9 +167,9 @@ function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
         </div>
 
         {/* Search and Filters */}
-        <div className="mx-auto mt-8 max-w-2xl">
+        <div className="mt-8 w-full max-w-4xl mx-auto">
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
             <input
               ref={searchInputRef}
