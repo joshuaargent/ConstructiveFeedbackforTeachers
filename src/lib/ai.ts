@@ -4,15 +4,8 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Free models (no credit card required on OpenRouter)
-const FREE_MODELS = [
-  'qwen/qwen-2.5-7b-instruct',       // Qwen - excellent free model
-  'meta-llama/llama-3.2-1b-instruct',  // Meta Llama
-  'microsoft/phi-4-mini',           // Microsoft Phi
-];
-
-// Primary free model
-const DEFAULT_MODEL = FREE_MODELS[0];
+// Use OpenRouter's free model routing - automatically uses free credits
+const DEFAULT_MODEL = 'openrouter/free';
 
 // ============================================
 // Type definitions
@@ -93,13 +86,10 @@ Output format (JSON):
 async function callOpenRouter(
   userMessage: string,
   systemPrompt: string,
-  retryCount = 0,
 ): Promise<unknown> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not set');
   }
-
-  const currentModel = FREE_MODELS[retryCount % FREE_MODELS.length];
 
   try {
     const response = await fetch(OPENROUTER_API_URL, {
@@ -111,24 +101,18 @@ async function callOpenRouter(
         'X-Title': 'Constructive Feedback for Teachers',
       },
       body: JSON.stringify({
-        model: currentModel,
+        model: DEFAULT_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
         response_format: { type: 'json_object' },
-        temperature: 0.3, // Lower temperature for more consistent output
+        temperature: 0.3,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      
-      // Retry on rate limit or model errors
-      if ((response.status === 429 || response.status >= 500) && retryCount < 2) {
-        console.log(`[AI] Retrying with free model...`);
-        return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
-      }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
@@ -141,11 +125,6 @@ async function callOpenRouter(
 
     return JSON.parse(content);
   } catch (error) {
-    // Retry on parse errors or network issues
-    if (retryCount < 2) {
-      console.log(`[AI] Retrying after error: ${error}`);
-      return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
-    }
     throw error;
   }
 }
