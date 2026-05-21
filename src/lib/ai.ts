@@ -6,9 +6,9 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Use reliable free models with fallbacks - best chance of getting a working model
 const FREE_MODELS = [
-  'meta-llama/llama-3.2-1b-instruct:free',     // Small, fast, reliable
-  'meta-llama/llama-3.2-3b-instruct:free',     // Better quality
-  'openrouter/free',                         // Ultimate fallback
+  'nvidia/nemotron-3-super-120b-a12b:free',  // Large but capable
+  'nvidia/nemotron-nano-9b-v2-velarde:free', // Fast fallback
+  'openrouter/free',                       // Ultimate fallback
 ];
 
 // Maximum retries for transient failures
