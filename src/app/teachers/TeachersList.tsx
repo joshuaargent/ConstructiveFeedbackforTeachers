@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { GraduationCap, Search, X, ChevronDown, MessageCircle } from 'lucide-react';
 
@@ -34,11 +35,24 @@ const sortOptions = [
 // ============================================
 
 function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
+  const searchParams = useSearchParams();
+  
+  // Get initial subject from URL after mount to avoid SSR issues
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('name-asc');
+  const [isMounted, setIsMounted] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Initialize from URL after mount
+  useEffect(() => {
+    const subject = searchParams.get('subject');
+    if (subject) {
+      setSelectedSubject(subject);
+    }
+    setIsMounted(true);
+  }, [searchParams]);
+  
   // Keyboard shortcut: Cmd/Ctrl + K to focus search, Escape to clear
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
