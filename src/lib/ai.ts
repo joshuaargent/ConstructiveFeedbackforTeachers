@@ -32,93 +32,34 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt
-// Goal: protect from ban while getting constructive feedback for teachers
 // ============================================
-
-// Moderation prompt
-// Goal: protect from ban while getting constructive feedback for teachers
+// Moderation prompt - classify feedback for safety
 // ============================================
 
 const MODERATION_SYSTEM_PROMPT = `You classify student feedback.
 
 PRIMARY GOAL: Get useful feedback to teachers WITHOUT getting site banned.
-Block ANY content that could get us banned.
-
 CRITICAL RULE: If feedback contains BOTH constructive AND insulting content, mark as INSULTING.
-No mixing allowed - one bad element = insulting.
 
 CLASSIFICATION:
 - "constructive": Feedback with ONLY positive/helpful content
-  * Specific praise ("explains step by step")
-  * Actionable suggestions ("more examples please")
-  * Valid criticism ("moves too fast")
-  Anything without any negativity towards teacher
-  
-- "insulting": ANY of the following:
-  * Hatespeech/slurs
-  * Personal attacks ("teacher is worthless")
-  * Threats/harassment
-  * Insults even if mixed with praise ("good but he's stupid")
-  * Negative personality attacks ("lazy", "bad teacher")
-  
+- "insulting": Hatespeech, personal attacks, even if mixed with praise
 - "neutral": Too vague ("ok", "boring", "fine")
 - "other": Spam/garbage
 
-EXAMPLES - insulting (MIXED = insulting):
-* "good but he's lazy" - insult mixed in
-* "nice but incompetent" - insult mixed in
+EXAMPLES:
+* "good but he's lazy" = insulting
 
-RESPOND ONLY with valid JSON:
-{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
+RESPOND JSON:
+{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": []}`;
 
 // ============================================
-// Summary generation prompt
+// Summary generation prompt - aggregate constructive feedback
 // ============================================
 
-const SUMMARY_SYSTEM_PROMPT = `You summarize ONLY CONSTRUCTIVE student feedback for teachers.
-
-INPUT: Only feedback with substance/value (NOT vague stuff like "boring" or "okay")
-
-RULES:
-- Skip neutral/vague feedback entirely
-- Focus on actionable feedback
-- Frame growth opportunities positively
-- Never reveal student identities
-
-OUTPUT (JSON with 4 fields):
-- overallThemes: 2-3 sentences on commonly mentioned topics
-- strengthHighlights: What's working (specific praise)
-- growthOpportunities: Improvement areas (actionable suggestions)
-- safeParaphrasedComments: 2-3 paraphrased quotes capturing themes
-
-IMPORTANT:
-- Present growth as opportunities, not complaints
-- Keep sections concise
-- Summarize only the substantive feedback`;// ============================================
-// Summary generation prompt - optimized for giving teachers useful feedback
-// ============================================
-
-const SUMMARY_SYSTEM_PROMPT = `You summarize ONLY CONSTRUCTIVE student feedback for teachers.
-
-INPUT: Only feedback with substance/value (NOT vague stuff like "boring" or "okay")
-
-RULES:
-- Skip neutral/vague feedback entirely
-- Focus on actionable feedback
-- Frame growth opportunities positively
-- Never reveal student identities
-
-OUTPUT (JSON with 4 fields):
-- overallThemes: 2-3 sentences on commonly mentioned topics
-- strengthHighlights: What's working (specific praise)
-- growthOpportunities: Improvement areas (actionable suggestions)
-- safeParaphrasedComments: 2-3 paraphrased quotes capturing themes
-
-IMPORTANT:
-- Present growth as opportunities, not complaints
-- Keep sections concise
-- Summarize only the substantive feedback`;
+const SUMMARY_SYSTEM_PROMPT = `Summarize ONLY CONSTRUCTIVE feedback.
+Skip neutral/vague.
+Output JSON: overallThemes, strengthHighlights, growthOpportunities, safeParaphrasedComments`;
 
 // ============================================
 // API helper functions with retry logic
