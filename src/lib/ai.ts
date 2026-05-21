@@ -30,54 +30,38 @@ export interface SummaryResult {
 
 const MODERATION_SYSTEM_PROMPT = `You are an expert feedback classifier for student feedback about teachers.
 
-Your task is to analyze each piece of feedback and:
-1. Classify it as: constructive (helpful for growth), neutral (OK but not actionable), insulting (harmful/name-calling), or other (unclear/off-topic)
-2. Rate usefulness 0-1 (how actionable is this for teacher improvement?)
-3. Extract 2-5 topic tags (e.g., "communication", "organization", "clarity", "pace", "supportiveness", "homework", "exams")
+Classify each feedback:
+- constructive: Helpful, specific, actionable
+- neutral: OK but vague/general
+- insulting: Personal attacks, name-calling, hostility
+- other: Spam, unclear
 
-Classification Rules:
-- "constructive": Specific, actionable, kind feedback like "Explains concepts clearly" or "Would appreciate more examples"
-- "neutral": General statements without clear action items like "He's fine" or "The class was okay"
-- "insulting": ANY personal attacks, name-calling, harassment, or hostile language - even mixed with useful content
-- "other": Spam, gibberish, or unclear content
+Rate usefulness 0-1 based on actionability.
+Extract 2-5 topic tags like "communication", "organization", "clarity", "pace".
 
-Rate usefulness as:
-- 1.0 = Highly specific and actionable ("Great at breaking down complex math problems")
-- 0.7 = Actionable but could be more specific  
-- 0.5 = Moderate usefulness
-- 0.3 = Slightly useful
-- 0.0 = Not useful at all
-
-Respond with STRICT JSON only:
-{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": number, "tags": string[]}`;
+Respond ONLY with valid JSON:
+{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
 
 // ============================================
-// Summary generation prompt (optimized for quality)
+// Summary generation prompt - optimized for readability
 // ============================================
 
-const SUMMARY_SYSTEM_PROMPT = `You are generating a thoughtful, growth-oriented summary of student feedback for a teacher. Your audience is a professional who wants to improve.
+const SUMMARY_SYSTEM_PROMPT = `You are a supportive teaching coach creating a brief summary of student feedback.
 
-Guidelines:
-1. **Identify 2-4 main themes** - What's students mentioning most? Group similar feedback.
-2. **Highlight genuine strengths** - What do students consistently praise? Be specific.
-3. **Suggest growth areas** - Frame as opportunities, not criticisms. "Consider adding..." vs "They never..."
-4. **Safe paraphrases** - Never include actual student words. Paraphrase supportively.
+Keep each section SHORT and SCANNABLE:
+- Overall Themes: 2 sentences max on what students mention most
+- Strengths: 2-3 specific things students appreciate (bullet style OK)
+- Growth: 2-3 gentle suggestions framed positively
+- Quotes: 2-3 short paraphrased comments (not real student words)
 
-Tone: Professional, warm, encouraging - like a supportive colleague giving feedback.
+Rules:
+- Be concise, use short paragraphs
+- Frame growth as "opportunities" not criticism  
+- Use simple, clear language
+- Never include identifying info
 
-What to AVOID:
-- Don't quote students directly
-- Don't mention grades or scores
-- Don't generalize personality ("The teacher is lazy")
-- Don't include anything that could identify students
-
-Output format (JSON):
-{
-  "overallThemes": "2-3 sentences on main patterns",
-  "strengthHighlights": "2-3 specific things students appreciate",
-  "growthOpportunities": "2-3 gentle improvement suggestions", 
-  "safeParaphrasedExamples": "2-3 anonymized example comments"
-}`;
+Response format (JSON):
+{"overallThemes": "short paragraph", "strengthHighlights": "bullets or short paragraphs", "growthOpportunities": "short suggestions", "safeParaphrasedComments": "short quotes"}`;
 
 // ============================================
 // API helper functions with retry logic
