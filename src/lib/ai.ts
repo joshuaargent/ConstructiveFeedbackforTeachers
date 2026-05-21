@@ -4,12 +4,15 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use a specific reliable model for consistent results
-// Google Gemini Flash is fast, free tier friendly, and high quality
-const DEFAULT_MODEL = 'google/gemini-2.0-flash-001';
+// Free models (no credit card required on OpenRouter)
+const FREE_MODELS = [
+  'qwen/qwen-2.5-7b-instruct',       // Qwen - excellent free model
+  'meta-llama/llama-3.2-1b-instruct',  // Meta Llama
+  'microsoft/phi-4-mini',           // Microsoft Phi
+];
 
-// Fallback model if default isn't available
-const FALLBACK_MODEL = 'deepseek/deepseek-chat';
+// Primary free model
+const DEFAULT_MODEL = FREE_MODELS[0];
 
 // ============================================
 // Type definitions
@@ -96,8 +99,7 @@ async function callOpenRouter(
     throw new Error('OPENROUTER_API_KEY is not set');
   }
 
-  const models = [DEFAULT_MODEL, FALLBACK_MODEL, 'openrouter/auto'];
-  const currentModel = models[retryCount % models.length];
+  const currentModel = FREE_MODELS[retryCount % FREE_MODELS.length];
 
   try {
     const response = await fetch(OPENROUTER_API_URL, {
@@ -124,7 +126,7 @@ async function callOpenRouter(
       
       // Retry on rate limit or model errors
       if ((response.status === 429 || response.status >= 500) && retryCount < 2) {
-        console.log(`[AI] Retrying with model ${models[(retryCount + 1) % models.length]}...`);
+        console.log(`[AI] Retrying with free model...`);
         return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
       }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
