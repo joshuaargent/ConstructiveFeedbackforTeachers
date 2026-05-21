@@ -52,15 +52,14 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
   }
 
   // Create feedback entry
-  // AI with double-pass safety check handles auto-approval
-  // Constructive/neutral + passes safety = auto-show
-  // Everything else = review required
+  // Only constructive feedback auto-approves (true praise)
+  // All other categories require review
   const feedback = await prisma.feedback.create({
     data: {
       teacherId,
       userId: session.user.id,
       rawText: feedbackText,
-      isApproved: moderationResult.category === 'constructive' || moderationResult.category === 'neutral',
+      isApproved: moderationResult.category === 'constructive',
       category: moderationResult.category,
       usefulnessScore: moderationResult.usefulnessScore,
       tags: moderationResult.tags,

@@ -186,36 +186,6 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
     throw new Error('Invalid moderation result from AI');
   }
 
-  // Second pass - safety verification for borderline cases
-  // If classified as constructive/neutral, verify it's actually safe to display
-  const category = String(result.category);
-  if (category === 'constructive' || category === 'neutral') {
-    const safetyCheck = await callOpenRouter(
-      `Is this feedback SAFE to display publicly to teachers?
-
-Feedback: "${feedbackText}"
-
-Answer YES only if ALL of these are true:
-- No hints of sarcasm, eye-rolling, or dismissiveness
-- Actually helpful for teacher improvement
-- Would be comfortable if teacher read it in front of school principal
-- No "I'm just being honest" or "no offense but" phrasing
-- No comparisons that put teacher down (better than, unlike, etc.)
-
-Respond ONLY with JSON: {"safe": true|false}`,
-    );
-    
-    // If safety check fails, downgrade to 'other' - requires manual review
-    if (typeof safetyCheck === 'object' && safetyCheck !== null && 'safe' in safetyCheck && safetyCheck.safe === false) {
-      console.log('[MODERATION] Safety check failed, requiring manual review');
-      return {
-        category: 'other',
-        usefulnessScore: 0,
-        tags: [],
-      };
-    }
-  }
-
   // Determine final category (default to 'other' if invalid)
   const validCategories = ['constructive', 'neutral', 'insulting', 'other'];
   const rawCategory = String(result.category);
