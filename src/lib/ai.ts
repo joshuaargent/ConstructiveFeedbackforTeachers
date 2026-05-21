@@ -135,36 +135,21 @@ async function callOpenRouter(
  * Returns category, usefulness score, and tags
  */
 export async function moderateFeedback(feedbackText: string): Promise<ModerationResult> {
-  // First pass - main classification
   const result = await callOpenRouter(
-    `Feedback to classify:\n\n${feedbackText}`,
+    `Classify: ${feedbackText}`,
     MODERATION_SYSTEM_PROMPT,
   );
 
-  // Type guard to validate the result
-  if (
-    typeof result !== 'object' ||
-    result === null ||
-    !('category' in result) ||
-    !('usefulnessScore' in result) ||
-    !('tags' in result)
-  ) {
-    throw new Error('Invalid moderation result from AI');
-  }
-
-  // Determine final category (default to 'other' if invalid)
+  // Handle incomplete AI responses gracefully
+  const res = result as Record<string, unknown> | undefined;
+  const category = String(res?.category || 'other');
   const validCategories = ['constructive', 'neutral', 'insulting', 'other'];
-  const rawCategory = String(result.category);
-  const finalCategory = validCategories.includes(rawCategory)
-    ? rawCategory as 'constructive' | 'neutral' | 'insulting' | 'other'
+  const finalCategory = validCategories.includes(category)
+    ? category as ModerationResult['category']
     : 'other';
 
-  const usefulnessScore = Math.max(
-    0,
-    Math.min(1, typeof result.usefulnessScore === 'number' ? result.usefulnessScore : 0),
-  );
-
-  const tags = Array.isArray(result.tags) ? result.tags : [];
+  const usefulnessScore = Math.max(0, Math.min(1, Number(res?.usefulnessScore) || 0));
+  const tags = Array.isArray(res?.tags) ? res.tags as string[] : [];
 
   return {
     category: finalCategory,
@@ -172,6 +157,7 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
     tags,
   };
 }
+
 
 /**
  * Generates a summary of approved feedback for a teacher
@@ -196,26 +182,17 @@ Usefulness: ${entry.usefulnessScore}`,
     .join('\n\n');
 
   const result = await callOpenRouter(
-    `Here are ${feedbackEntries.length} feedback entries to summarize:\n\n${feedbackFormatted}`,
+    `Summarize: ${feedbackEntries.length} feedback entries`,
     SUMMARY_SYSTEM_PROMPT,
   );
 
-  // Type guard to validate the result
-  if (
-    typeof result !== 'object' ||
-    result === null ||
-    !('overallThemes' in result) ||
-    !('strengthHighlights' in result) ||
-    !('growthOpportunities' in result) ||
-    !('safeParaphrasedComments' in result)
-  ) {
-    throw new Error('Invalid summary result from AI');
-  }
+  // Handle incomplete AI responses gracefully
+  const res = result as Record<string, unknown> | undefined;
 
   return {
-    overallThemes: String(result.overallThemes || ''),
-    strengthHighlights: String(result.strengthHighlights || ''),
-    growthOpportunities: String(result.growthOpportunities || ''),
-    safeParaphrasedComments: String(result.safeParaphrasedComments || ''),
+    overallThemes: String(res?.overallThemes || ''),
+    strengthHighlights: String(res?.strengthHighlights || ''),
+    growthOpportunities: String(res?.growthOpportunities || ''),
+    safeParaphrasedComments: String(res?.safeParaphrasedComments || ''),
   };
 }
