@@ -4,11 +4,18 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use OpenRouter's free model routing - automatically uses free credits
-const DEFAULT_MODEL = 'openrouter/free';
+// Use specific free models sorted by capability (best first)
+// These models support JSON output and are ranked by performance
+const FREE_MODELS = [
+  'google/gemma-4-31b-it:free',              // Gemma 4 31B - Best overall
+  'google/gemma-4-26b-a4b-it:free',          // Gemma 4 26B A4B - Strong alternative
+  'nvidia/nemotron-3-super-120b-a12b:free', // Nemotron 3 Super - Large but capable
+  'nvidia/nemotron-nano-9b-v2-velarde:free', // Nemotron Nano 9B V2 - Fast fallback
+  'openrouter/free',                         // Last resort fallback
+];
 
 // Maximum retries for transient failures
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 3;
 
 // ============================================
 // Type definitions
@@ -28,19 +35,29 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt (optimized for quality)
+// Moderation prompt - ultra-strict for safety
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are an expert feedback classifier for student feedback about teachers.
+const MODERATION_SYSTEM_PROMPT = `You are a strict feedback classifier for student feedback about teachers.
 
-Classify each feedback:
-- constructive: Helpful, specific, actionable
-- neutral: OK but vague/general
-- insulting: Personal attacks, name-calling, hostility
-- other: Spam, unclear
+SAFETY FIRST: When in doubt, classify as NOT constructive. Never let inappropriate content through.
 
-Rate usefulness 0-1 based on actionability.
-Extract 2-5 topic tags like "communication", "organization", "clarity", "pace".
+Classification Rules:
+- "constructive": ONLY if explicitly specific, actionable, helpful, and professionalsappropriate for display
+- "neutral": ONLY if unambiguously positive but lacks specific action items - no feedback about problems
+- "insulting": ANY negative sentiment toward the teacher personally, sarcasm, rudeness, eye-rolls, dismissiveness
+- "other": Anything else (spam, unclear, mixed signals, borderline)
+
+Red Flags that MUST trigger "insulting":
+- Any sarcasm or irony about the teacher
+- Any eye-rolling language ("whatever", "doesn't care", "obviously", "clearly")
+- Any implied negativa ("he doesn't", "she never", "they always")
+- Any comparison that puts teacher down ("better than", "unlike")
+- Any dismissiveness ("it's fine I guess", "meh", "whatever")
+- ANY hint of frustration, annoyance, or disrespect ANY tone of "I'm just being honest" or "no offense"
+
+Topic Tags - ONLY positive teaching aspects:
+"communication", "organization", "clarity", "pace", "supportiveness", "knowledge", "patience", "engagement"
 
 Respond ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
@@ -79,6 +96,9 @@ async function callOpenRouter(
     throw new Error('OPENROUTER_API_KEY is not set');
   }
 
+  // Rotate through models on each retry attempt
+  const currentModel = FREE_MODELS[retryCount % FREE_MODELS.length];
+
   try {
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
@@ -89,7 +109,7 @@ async function callOpenRouter(
         'X-Title': 'Constructive Feedback for Teachers',
       },
       body: JSON.stringify({
-        model: DEFAULT_MODEL,
+        model: currentModel,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -102,9 +122,9 @@ async function callOpenRouter(
     if (!response.ok) {
       const errorText = await response.text();
 
-      // Retry on rate limit (429) or server errors (500+)
+      // Retry on rate limit (429) or server errors (500+) - try next model
       if ((response.status === 429 || response.status >= 500) && retryCount < MAX_RETRIES) {
-        console.log(`[AI] Retrying after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+        console.log(`[AI] Retrying with ${currentModel} after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
         return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
       }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
@@ -119,9 +139,9 @@ async function callOpenRouter(
 
     return JSON.parse(content);
   } catch (error) {
-    // Retry on parse errors or network issues
+    // Retry on parse errors or network issues - try next model
     if (retryCount < MAX_RETRIES) {
-      console.log(`[AI] Retrying after error: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      console.log(`[AI] Retrying after error with next model: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`);
       return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
     }
     throw error;
@@ -133,10 +153,11 @@ async function callOpenRouter(
 // ============================================
 
 /**
- * Moderates feedback text using AI
+ * Moderates feedback text using AI - double check for safety
  * Returns category, usefulness score, and tags
  */
 export async function moderateFeedback(feedbackText: string): Promise<ModerationResult> {
+  // First pass - main classification
   const result = await callOpenRouter(
     `Feedback to classify:\n\n${feedbackText}`,
     MODERATION_SYSTEM_PROMPT,
@@ -153,9 +174,40 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
     throw new Error('Invalid moderation result from AI');
   }
 
+  // Second pass - safety verification for borderline cases
+  // If classified as constructive/neutral, verify it's actually safe to display
+  const category = String(result.category);
+  if (category === 'constructive' || category === 'neutral') {
+    const safetyCheck = await callOpenRouter(
+      `Is this feedback SAFE to display publicly to teachers?
+
+Feedback: "${feedbackText}"
+
+Answer YES only if ALL of these are true:
+- No hints of sarcasm, eye-rolling, or dismissiveness
+- Actually helpful for teacher improvement
+- Would be comfortable if teacher read it in front of school principal
+- No "I'm just being honest" or "no offense but" phrasing
+- No comparisons that put teacher down (better than, unlike, etc.)
+
+Respond ONLY with JSON: {"safe": true|false}`,
+    );
+    
+    // If safety check fails, downgrade to 'other' - requires manual review
+    if (typeof safetyCheck === 'object' && safetyCheck !== null && 'safe' in safetyCheck && safetyCheck.safe === false) {
+      console.log('[MODERATION] Safety check failed, requiring manual review');
+      return {
+        category: 'other',
+        usefulnessScore: 0,
+        tags: [],
+      };
+    }
+  }
+
+  // Determine final category (default to 'other' if invalid)
   const validCategories = ['constructive', 'neutral', 'insulting', 'other'];
   const rawCategory = String(result.category);
-  const category = validCategories.includes(rawCategory)
+  const finalCategory = validCategories.includes(rawCategory)
     ? rawCategory as 'constructive' | 'neutral' | 'insulting' | 'other'
     : 'other';
 
@@ -167,7 +219,7 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
   const tags = Array.isArray(result.tags) ? result.tags : [];
 
   return {
-    category,
+    category: finalCategory,
     usefulnessScore,
     tags,
   };

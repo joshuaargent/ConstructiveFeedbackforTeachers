@@ -100,16 +100,16 @@ export default async function TeacherPage({
 
         <div className="mx-auto max-w-3xl">
           {/* Teacher Header */}
-          <div className="mb-8 rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
               <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent-light">
                 <GraduationCap className="h-7 w-7 text-accent" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h1 className="text-2xl font-bold text-text-primary">
                   {teacher.name}
                 </h1>
-                <div className="mt-1 flex flex-wrap gap-2">
+                <div className="mt-2 flex flex-wrap gap-2">
                   {teacher.subject.split('&').map((sub, i) => (
                     <span 
                       key={i}
@@ -125,7 +125,7 @@ export default async function TeacherPage({
               </div>
             </div>
             
-            {/* Stats */}
+            {/* Stats Row */}
             <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
               <div className="flex flex-wrap gap-6">
                 <div className="text-center">
@@ -141,9 +141,9 @@ export default async function TeacherPage({
             </div>
           </div>
 
-          {/* Summary Sections */}
-          {summary && (
-            <div className="space-y-6">
+          {/* Feedback Summary */}
+          {summary ? (
+            <div className="mt-6 space-y-6">
               {/* Overall Themes */}
               <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2">
@@ -155,31 +155,32 @@ export default async function TeacherPage({
                 <p className="mt-3 text-text-secondary">{summary.overallThemes}</p>
               </div>
 
-              {/* Strength Highlights */}
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold text-text-primary">
-                    Strengths
-                  </h2>
+              {/* Strengths & Growth side by side on larger screens */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-accent" />
+                    <h2 className="text-lg font-semibold text-text-primary">
+                      Strengths
+                    </h2>
+                  </div>
+                  <p className="mt-3 text-text-secondary">{summary.strengthHighlights}</p>
                 </div>
-                <p className="mt-3 text-text-secondary">{summary.strengthHighlights}</p>
+
+                <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-accent" />
+                    <h2 className="text-lg font-semibold text-text-primary">
+                      Growth Opportunities
+                    </h2>
+                  </div>
+                  <p className="mt-3 text-text-secondary">
+                    {summary.growthOpportunities}
+                  </p>
+                </div>
               </div>
 
-              {/* Growth Opportunities */}
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold text-text-primary">
-                    Growth Opportunities
-                  </h2>
-                </div>
-                <p className="mt-3 text-text-secondary">
-                  {summary.growthOpportunities}
-                </p>
-              </div>
-
-              {/* Safe Paraphrased Comments */}
+              {/* Student Comments */}
               <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5 text-accent" />
@@ -192,13 +193,11 @@ export default async function TeacherPage({
                 </p>
               </div>
             </div>
-          )}
-
-          {!summary && (
-            <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-              <p className="text-center text-text-secondary">
-                No feedback summary available yet. Be the first to share constructive
-                feedback!
+          ) : (
+            <div className="mt-6 rounded-xl border border-border bg-bg-card p-8 text-center shadow-sm">
+              <Lightbulb className="mx-auto h-12 w-12 text-text-muted" />
+              <p className="mt-4 text-text-secondary">
+                No feedback summary yet. Be the first to share constructive feedback!
               </p>
             </div>
           )}
@@ -208,8 +207,8 @@ export default async function TeacherPage({
             {session?.user ? (
               <FeedbackForm teacherId={teacher.id} />
             ) : (
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                <p className="text-center text-text-secondary">
+              <div className="rounded-xl border border-border bg-bg-card p-6 text-center shadow-sm">
+                <p className="text-text-secondary">
                   Please{' '}
                   <a href="/login" className="text-accent hover:underline">
                     sign in

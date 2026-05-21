@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create feedback entry
-    // IMPORTANT: Only auto-approve constructive/neutral, require manual review for 'other' and 'insulting'
+    // Only auto-approve if AI successfully categorized as constructive/neutral
     const feedback = await prisma.feedback.create({
       data: {
         teacherId,
