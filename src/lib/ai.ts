@@ -36,47 +36,66 @@ export interface SummaryResult {
 // Goal: protect from ban while getting constructive feedback for teachers
 // ============================================
 
+// Moderation prompt
+// Goal: protect from ban while getting constructive feedback for teachers
+// ============================================
+
 const MODERATION_SYSTEM_PROMPT = `You classify student feedback.
 
-PRIMARY GOAL: Help teachers get USEFUL feedback. Block content that would get site banned.
+PRIMARY GOAL: Get useful feedback to teachers WITHOUT getting site banned.
+Block ANY content that could get us banned.
+
+CRITICAL RULE: If feedback contains BOTH constructive AND insulting content, mark as INSULTING.
+No mixing allowed - one bad element = insulting.
 
 CLASSIFICATION:
-- "constructive": Feedback with substance/value:
+- "constructive": Feedback with ONLY positive/helpful content
   * Specific praise ("explains step by step")
   * Actionable suggestions ("more examples please")
-  * Valid criticism ("moves too fast", "need more practice problems")
-  * Constructive observations ("tests don't match lectures")
-  * Concerns tied to specifics
+  * Valid criticism ("moves too fast")
+  Anything without any negativity towards teacher
   
-- "insulting": Would get us banned:
-  * Explicit hatespeech
+- "insulting": ANY of the following:
+  * Hatespeech/slurs
   * Personal attacks ("teacher is worthless")
   * Threats/harassment
-  * Profanity-laden attacks without value
+  * Insults even if mixed with praise ("good but he's stupid")
+  * Negative personality attacks ("lazy", "bad teacher")
   
-- "neutral": Too vague to be useful ("ok", "boring", "fine", "whatever")
-
+- "neutral": Too vague ("ok", "boring", "fine")
 - "other": Spam/garbage
 
-EXAMPLES - constructive:
-✅ "too fast for beginners" - valid concern
-✅ "great explanations" - specific praise
-✅ "more examples would help" - actionable
-
-EXAMPLES - neutral (not constructive enough):
-⚠️ "boring" - just a complaint, no substance
-⚠️ "okay" - too brief
-⚠️ "whatever"
-
-EXAMPLES - insulting:
-❌ "kill yourself"
-❌ "[slur]"
-❌ "teacher is stupid"
+EXAMPLES - insulting (MIXED = insulting):
+* "good but he's lazy" - insult mixed in
+* "nice but incompetent" - insult mixed in
 
 RESPOND ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
 
 // ============================================
+// Summary generation prompt
+// ============================================
+
+const SUMMARY_SYSTEM_PROMPT = `You summarize ONLY CONSTRUCTIVE student feedback for teachers.
+
+INPUT: Only feedback with substance/value (NOT vague stuff like "boring" or "okay")
+
+RULES:
+- Skip neutral/vague feedback entirely
+- Focus on actionable feedback
+- Frame growth opportunities positively
+- Never reveal student identities
+
+OUTPUT (JSON with 4 fields):
+- overallThemes: 2-3 sentences on commonly mentioned topics
+- strengthHighlights: What's working (specific praise)
+- growthOpportunities: Improvement areas (actionable suggestions)
+- safeParaphrasedComments: 2-3 paraphrased quotes capturing themes
+
+IMPORTANT:
+- Present growth as opportunities, not complaints
+- Keep sections concise
+- Summarize only the substantive feedback`;// ============================================
 // Summary generation prompt - optimized for giving teachers useful feedback
 // ============================================
 
