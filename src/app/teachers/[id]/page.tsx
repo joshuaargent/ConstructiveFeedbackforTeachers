@@ -88,7 +88,7 @@ export default async function TeacherPage({
     <section className="py-12 md:py-16">
       <div className="container">
         {/* Back Button */}
-        <div className="mx-auto max-w-3xl mb-6">
+        <div className="mb-6">
           <Link 
             href="/teachers"
             className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors"
@@ -98,9 +98,8 @@ export default async function TeacherPage({
           </Link>
         </div>
 
-        <div className="mx-auto max-w-3xl">
-          {/* Teacher Header */}
-          <div className="mb-8 rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+        {/* Teacher Header - Full Width */}
+        <div className="mb-8 rounded-xl border border-border bg-bg-card p-6 shadow-sm">
             <div className="flex items-start gap-4">
               <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent-light">
                 <GraduationCap className="h-7 w-7 text-accent" />
