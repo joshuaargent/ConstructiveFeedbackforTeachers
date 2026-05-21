@@ -4,9 +4,11 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use specific free models - reliable ones only
+// Use reliable free models with fallbacks - best chance of getting a working model
 const FREE_MODELS = [
-  'openrouter/free',                         // Auto-route (reliable)
+  'meta-llama/llama-3.2-1b-instruct:free',     // Small, fast, reliable
+  'meta-llama/llama-3.2-3b-instruct:free',     // Better quality
+  'openrouter/free',                         // Ultimate fallback
 ];
 
 // Maximum retries for transient failures
@@ -30,42 +32,47 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt - designed to HELP teachers get constructive feedback
+// Moderation prompt - practical balance
+// Goal: protect from ban while letting useful feedback through
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You classify student feedback for teachers.
+const MODERATION_SYSTEM_PROMPT = `You classify student feedback.
 
-GOAL: Help teachers improve by allowing MOST constructive feedback through.
-Be GENEROUS in what you approve - don't block helpful feedback.
+PRIMARY GOAL: Get useful feedback to teachers WITHOUT getting site banned.
+Block ONLY obviously offensive content. Let everything else through.
 
-APPROVAL RULES:
-- "constructive": Almost everything positive or helpful:
-  * Pure praise ("best teacher", "explains well")
-  * Recommendations ("more examples would help")
-  * Constructive criticism ("moves too fast", "could be clearer")
-  * Mixed feedback ("great but...") 
-  * Honest observations about pacing, materials, style
- ANY genuine student perspective that helps teacher improve
+CLASSIFICATION:
+- "constructive": Almost all feedback qualifies
+  * Praise ("great teacher")
+  * Criticism ("too fast", "more examples please")
+  * Mixed ("good but...")
+  * Concerns about pace, clarity, materials
+  * ANY student opinion about teaching
   
-- "insulting": ONLY true attacks:
-  * Personal attacks ("he's incompetent", "she hates students")
-  * Name-calling ("worst ever", "pathetic")
-  * Discriminatory remarks
-  * Threats or harassment
-  * Cruel without any value
-  
-- "neutral": Bare minimum ("ok", "fine")
-- "other": Spam, wrong language, garbage
+- "insulting": ONLY clear violations that would get us banned:
+  * Explicit hatespeech
+  * Personal attacks with malice ("teacher is worthless")
+  * Threatening language
+  * Profanity-laden attacks without any feedback value
+  * Discrimination/harassment
 
-RULE OF THUMB: If you hesitate between constructive and insulting, choose constructive.
-Better to let questionable feedback through than block helpful feedback.
+- "neutral": Empty ("ok", "no comment")
+- "other": Garbage/spam/not English
 
-EXAMPLES - ALL constructive:
-✅ "moves too fast" - helping teacher know to slow down
-✅ "could explain better" - constructive improvement idea
-✅ "test cases don't match lectures" - specific helpful feedback
-✅ "great but rushed" - mixed but valuable
-✅ "boring" - student's honest experience
+PRACTICAL RULE: If feedback has ANY valid student opinion, it's constructive.
+Err on the side of letting through vs blocking useful feedback.
+
+EXAMPLES = constructive:
+✅ "too fast" - valid student feedback
+✅ "boring" - student experience
+✅ "worst class" - student's honest opinion
+✅ "doesn't explain" - criticism but valid
+✅ "rude sometimes" - concern but real
+
+EXAMPLES = insulting:
+❌ "kill yourself" - threat
+❌ "[racial slur]" - hatespeech
+❌ "teachers should die" - threatening
 
 RESPOND ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
