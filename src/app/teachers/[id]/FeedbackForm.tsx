@@ -35,9 +35,7 @@ export function FeedbackForm({ teacherId }: FeedbackFormProps) {
       } else {
         setMessage({
           type: 'success',
-          text: result.isApproved
-            ? 'Thank you! Your constructive feedback has been submitted.'
-            : 'Thank you for your feedback, but it was not suitable for publication.',
+          text: 'Thank you! Your feedback has been submitted and is awaiting review before publication.',
         });
         setFeedbackText('');
       }

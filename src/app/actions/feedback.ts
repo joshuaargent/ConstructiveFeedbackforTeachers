@@ -52,14 +52,16 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
   }
 
   // Create feedback entry
-  // Only auto-approve if AI successfully categorized as constructive/neutral
-  // Other categories (insulting, other, or AI failure) require review
+  // IMPORTANT: ALL feedback requires manual review before showing publicly
+  // Even if AI approves, we require manual review to ensure nothing slips through
+  // This is the only way to 100% guarantee no inappropriate content displays
   const feedback = await prisma.feedback.create({
     data: {
       teacherId,
       userId: session.user.id,
       rawText: feedbackText,
-      isApproved: moderationResult.category === 'constructive' || moderationResult.category === 'neutral',
+      // Always require manual approval before showing feedback publicly
+      isApproved: false,
       category: moderationResult.category,
       usefulnessScore: moderationResult.usefulnessScore,
       tags: moderationResult.tags,
