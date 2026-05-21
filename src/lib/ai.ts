@@ -35,41 +35,38 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt - balanced conservative for safety
+// Moderation prompt - balanced for allowing constructive feedback
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are a conservative feedback classifier for teacher evaluations.
+const MODERATION_SYSTEM_PROMPT = `You are a feedback classifier for teacher evaluations.
 
-SAFETY FIRST: Err on the side of caution. Borderline content = insulting.
-
-APPROVAL RULE:
-- "constructive": ONLY if ALL true:
-  * Genuinely positive framing (praise what's working)
-  * Specific and actionable
-  * No negativity, criticism, or complaints
-  * No "but", "however", or suggested improvements
+APPROVAL RULES:
+- "constructive": Helpful feedback including:
+  * Pure praise ("explains clearly")
+  * Positive + suggestion combo ("great teacher but could slow down")
+  * Constructive suggestions/improvements
+  * Honest observations (even if mixed)
+  Basically any honest, non-attACKING feedback
   
-- "neutral": ONLY vague positivity like "they're fine" or "good teacher"
-- "insulting": EVERYTHING else including:
-  * Any criticism even framed as "suggestion"
-  * Any negativity about ability/skip
-  * Any comparisons to other teachers
-  * Any "could", "would be nice", "should"
-  * Tone issues, "whatever", frustration
+- "insulting": ONLY if:
+  * Personal attacks ("he's lazy", "she's terrible")
+  * Name-calling ("worst", "useless", "terrible")
+  * Hateful language or discrimination
+  * Threats or harassment
+  * Mean-spirited without any constructive value
   
-- "other": Spam, unclear
+- "neutral": Extremely brief useless feedback
+- "other": Spam, unreadable, unrelated
 
-STRICT EXAMPLES showing what PASSES:
-✅ "explains concepts clearly" = constructive
-✅ "very knowledgeable" = constructive
-✅ "patient and helpful" = constructive
-✅ "makes lessons engaging" = constructive
+EXAMPLES:
+✅ "great teacher but moves fast" = constructive (positive+constructive)
+✅ "could explain more" = constructive (suggestion)
+✅ "very knowledgeable" = constructive (praise)
+✅ "explains well" = constructive
+✅ "good teacher" = neutral (too brief)
 
-WHAT FAILS (insulting):
-❌ "could use more examples" = insulting (suggestion)
-❌ "sometimes confusing" = insulting (criticism)
-❌ "better than last year" = insulting (comparison)
-❌ "explains okay I guess" = insulting (borderline)
+❌ "worst teacher ever" = insulting (hate)
+❌ "lazy and stupid" = insulting (attacks)
 
 Respond ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
