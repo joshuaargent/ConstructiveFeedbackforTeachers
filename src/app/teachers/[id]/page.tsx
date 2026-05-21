@@ -132,10 +132,6 @@ export default async function TeacherPage({
                   <p className="text-2xl font-bold text-accent">{stats.total}</p>
                   <p className="text-sm text-text-secondary">Total Feedback</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-accent">{stats.approved}</p>
-                  <p className="text-sm text-text-secondary">Published</p>
-                </div>
               </div>
               <ShareButton teacherId={teacher.id} />
             </div>

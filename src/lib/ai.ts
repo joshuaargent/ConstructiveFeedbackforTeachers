@@ -4,14 +4,11 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use specific free models sorted by capability (best first)
-// These models support JSON output and are ranked by performance
+// Use reliable free models with fallbacks - best chance of getting a working model
 const FREE_MODELS = [
-  'google/gemma-4-31b-it:free',              // Gemma 4 31B - Best overall
-  'google/gemma-4-26b-a4b-it:free',          // Gemma 4 26B A4B - Strong alternative
-  'nvidia/nemotron-3-super-120b-a12b:free', // Nemotron 3 Super - Large but capable
-  'nvidia/nemotron-nano-9b-v2-velarde:free', // Nemotron Nano 9B V2 - Fast fallback
-  'openrouter/free',                         // Last resort fallback
+  'nvidia/nemotron-3-super-120b-a12b:free',  // Large but capable
+  'nvidia/nemotron-nano-9b-v2-velarde:free', // Fast fallback
+  'openrouter/free',                       // Ultimate fallback
 ];
 
 // Maximum retries for transient failures
@@ -35,65 +32,34 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt - balanced conservative for safety
+// ============================================
+// Moderation prompt - classify feedback for safety
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are a conservative feedback classifier for teacher evaluations.
+const MODERATION_SYSTEM_PROMPT = `You classify student feedback.
 
-SAFETY FIRST: Err on the side of caution. Borderline content = insulting.
+PRIMARY GOAL: Get useful feedback to teachers WITHOUT getting site banned.
+CRITICAL RULE: If feedback contains BOTH constructive AND insulting content, mark as INSULTING.
 
-APPROVAL RULE:
-- "constructive": ONLY if ALL true:
-  * Genuinely positive framing (praise what's working)
-  * Specific and actionable
-  * No negativity, criticism, or complaints
-  * No "but", "however", or suggested improvements
-  
-- "neutral": ONLY vague positivity like "they're fine" or "good teacher"
-- "insulting": EVERYTHING else including:
-  * Any criticism even framed as "suggestion"
-  * Any negativity about ability/skip
-  * Any comparisons to other teachers
-  * Any "could", "would be nice", "should"
-  * Tone issues, "whatever", frustration
-  
-- "other": Spam, unclear
+CLASSIFICATION:
+- "constructive": Feedback with ONLY positive/helpful content
+- "insulting": Hatespeech, personal attacks, even if mixed with praise
+- "neutral": Too vague ("ok", "boring", "fine")
+- "other": Spam/garbage
 
-STRICT EXAMPLES showing what PASSES:
-✅ "explains concepts clearly" = constructive
-✅ "very knowledgeable" = constructive
-✅ "patient and helpful" = constructive
-✅ "makes lessons engaging" = constructive
+EXAMPLES:
+* "good but he's lazy" = insulting
 
-WHAT FAILS (insulting):
-❌ "could use more examples" = insulting (suggestion)
-❌ "sometimes confusing" = insulting (criticism)
-❌ "better than last year" = insulting (comparison)
-❌ "explains okay I guess" = insulting (borderline)
-
-Respond ONLY with valid JSON:
-{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
+RESPOND JSON:
+{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": []}`;
 
 // ============================================
-// Summary generation prompt - optimized for readability
+// Summary generation prompt - aggregate constructive feedback
 // ============================================
 
-const SUMMARY_SYSTEM_PROMPT = `You are a supportive teaching coach creating a brief summary of student feedback.
-
-Keep each section SHORT and SCANNABLE:
-- Overall Themes: 2 sentences max on what students mention most
-- Strengths: 2-3 specific things students appreciate (bullet style OK)
-- Growth: 2-3 gentle suggestions framed positively
-- Quotes: 2-3 short paraphrased comments (not real student words)
-
-Rules:
-- Be concise, use short paragraphs
-- Frame growth as "opportunities" not criticism  
-- Use simple, clear language
-- Never include identifying info
-
-Response format (JSON):
-{"overallThemes": "short paragraph", "strengthHighlights": "bullets or short paragraphs", "growthOpportunities": "short suggestions", "safeParaphrasedComments": "short quotes"}`;
+const SUMMARY_SYSTEM_PROMPT = `Summarize ONLY CONSTRUCTIVE feedback.
+Skip neutral/vague.
+Output JSON: overallThemes, strengthHighlights, growthOpportunities, safeParaphrasedComments`;
 
 // ============================================
 // API helper functions with retry logic

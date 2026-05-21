@@ -52,8 +52,8 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
   }
 
   // Create feedback entry
-  // Only constructive feedback auto-approves (true praise)
-  // All other categories require review
+  // Only truly constructive feedback auto-approves
+  // Neutral + insulting + other = review required
   const feedback = await prisma.feedback.create({
     data: {
       teacherId,
@@ -112,28 +112,16 @@ export async function getTeacherSummary(teacherId: string) {
     },
   });
 
-  // If no approved feedback, return default summary
+  // If no approved feedback, return null (don't show stale data)
   if (approvedFeedback.length === 0) {
-    if (existingSummary) {
-      return existingSummary;
-    }
     return null;
   }
 
-  // Don't generate AI summary if too few feedback items (need at least 3 for meaningful patterns)
-  const MIN_FEEDBACK_FOR_SUMMARY = 3;
+  // Generate AI summary even with just 1 feedback
+  const MIN_FEEDBACK_FOR_SUMMARY = 1;
   if (approvedFeedback.length < MIN_FEEDBACK_FOR_SUMMARY) {
-    // Return partial summary showing count
-    if (existingSummary) {
-      return existingSummary;
-    }
-    // Return a waiting message
-    return {
-      overallThemes: `${approvedFeedback.length} piece${approvedFeedback.length === 1 ? '' : 's'} of feedback so far. Need ${MIN_FEEDBACK_FOR_SUMMARY} for full analysis.`,
-      strengthHighlights: 'Gathering more feedback...',
-      growthOpportunities: 'Gathering more feedback...',
-      safeParaphrasedComments: 'Not enough feedback yet to identify patterns.',
-    };
+    // Shouldn't reach here with MIN_FEEDBACK_FOR_SUMMARY = 1
+    return null;
   }
 
   // Generate new summary using AI
