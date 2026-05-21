@@ -53,13 +53,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Create feedback entry
-    // IMPORTANT: ALL feedback requires manual review before showing publicly
+    // Auto-approve constructive/neutral feedback
     const feedback = await prisma.feedback.create({
       data: {
         teacherId,
         userId: session.user.id,
         rawText: feedbackText,
-        isApproved: false,
+        isApproved: moderationResult.category === 'constructive' || moderationResult.category === 'neutral',
         category: moderationResult.category,
         usefulnessScore: moderationResult.usefulnessScore,
         tags: moderationResult.tags,
