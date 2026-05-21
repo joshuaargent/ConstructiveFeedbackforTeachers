@@ -4,14 +4,9 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use specific free models sorted by capability (best first)
-// These models support JSON output and are ranked by performance
+// Use specific free models - reliable ones only
 const FREE_MODELS = [
-  'google/gemma-4-31b-it:free',              // Gemma 4 31B - Best overall
-  'google/gemma-4-26b-a4b-it:free',          // Gemma 4 26B A4B - Strong alternative
-  'nvidia/nemotron-3-super-120b-a12b:free', // Nemotron 3 Super - Large but capable
-  'nvidia/nemotron-nano-9b-v2-velarde:free', // Nemotron Nano 9B V2 - Fast fallback
-  'openrouter/free',                         // Last resort fallback
+  'openrouter/free',                         // Auto-route (reliable)
 ];
 
 // Maximum retries for transient failures
@@ -35,62 +30,67 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt - balanced for allowing constructive feedback
+// Moderation prompt - designed to HELP teachers get constructive feedback
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are a feedback classifier for teacher evaluations.
+const MODERATION_SYSTEM_PROMPT = `You classify student feedback for teachers.
+
+GOAL: Help teachers improve by allowing MOST constructive feedback through.
+Be GENEROUS in what you approve - don't block helpful feedback.
 
 APPROVAL RULES:
-- "constructive": Helpful feedback including:
-  * Pure praise ("explains clearly")
-  * Positive + suggestion combo ("great teacher but could slow down")
-  * Constructive suggestions/improvements
-  * Honest observations (even if mixed)
-  Basically any honest, non-attACKING feedback
+- "constructive": Almost everything positive or helpful:
+  * Pure praise ("best teacher", "explains well")
+  * Recommendations ("more examples would help")
+  * Constructive criticism ("moves too fast", "could be clearer")
+  * Mixed feedback ("great but...") 
+  * Honest observations about pacing, materials, style
+ ANY genuine student perspective that helps teacher improve
   
-- "insulting": ONLY if:
-  * Personal attacks ("he's lazy", "she's terrible")
-  * Name-calling ("worst", "useless", "terrible")
-  * Hateful language or discrimination
+- "insulting": ONLY true attacks:
+  * Personal attacks ("he's incompetent", "she hates students")
+  * Name-calling ("worst ever", "pathetic")
+  * Discriminatory remarks
   * Threats or harassment
-  * Mean-spirited without any constructive value
+  * Cruel without any value
   
-- "neutral": Extremely brief useless feedback
-- "other": Spam, unreadable, unrelated
+- "neutral": Bare minimum ("ok", "fine")
+- "other": Spam, wrong language, garbage
 
-EXAMPLES:
-✅ "great teacher but moves fast" = constructive (positive+constructive)
-✅ "could explain more" = constructive (suggestion)
-✅ "very knowledgeable" = constructive (praise)
-✅ "explains well" = constructive
-✅ "good teacher" = neutral (too brief)
+RULE OF THUMB: If you hesitate between constructive and insulting, choose constructive.
+Better to let questionable feedback through than block helpful feedback.
 
-❌ "worst teacher ever" = insulting (hate)
-❌ "lazy and stupid" = insulting (attacks)
+EXAMPLES - ALL constructive:
+✅ "moves too fast" - helping teacher know to slow down
+✅ "could explain better" - constructive improvement idea
+✅ "test cases don't match lectures" - specific helpful feedback
+✅ "great but rushed" - mixed but valuable
+✅ "boring" - student's honest experience
 
-Respond ONLY with valid JSON:
+RESPOND ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
 
 // ============================================
-// Summary generation prompt - optimized for readability
+// Summary generation prompt - optimized for giving teachers useful feedback
 // ============================================
 
-const SUMMARY_SYSTEM_PROMPT = `You are a supportive teaching coach creating a brief summary of student feedback.
+const SUMMARY_SYSTEM_PROMPT = `You create helpful summaries of student feedback for teachers.
 
-Keep each section SHORT and SCANNABLE:
-- Overall Themes: 2 sentences max on what students mention most
-- Strengths: 2-3 specific things students appreciate (bullet style OK)
-- Growth: 2-3 gentle suggestions framed positively
-- Quotes: 2-3 short paraphrased comments (not real student words)
+GOAL: Give teachers ACTIONABLE insights they can use to improve.
+Don't polish feedback - present it in ways that help.
 
-Rules:
-- Be concise, use short paragraphs
-- Frame growth as "opportunities" not criticism  
-- Use simple, clear language
-- Never include identifying info
+REQUIRED FORMAT (JSON):
+- overallThemes: What students consistently mention (2-3 sentences)
+- strengthHighlights: What's working well (bullets OK)
+- growthOpportunities: Areas to improve (specific, actionable - frame positively!)
+- safeParaphrasedComments: 3 short quotes capturing key themes
 
-Response format (JSON):
-{"overallThemes": "short paragraph", "strengthHighlights": "bullets or short paragraphs", "growthOpportunities": "short suggestions", "safeParaphrasedComments": "short quotes"}`;
+RULES:
+- Present growth as OPPORTUNITIES, not criticisms
+- Include MIXED feedback - "but" feedback is valuable
+- Be specific enough to act on
+- Keep each section concise
+- Never reveal student identities
 
 // ============================================
 // API helper functions with retry logic
