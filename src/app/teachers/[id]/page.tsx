@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { getTeacherSummary } from '@/app/actions/feedback';
 import { FeedbackForm } from './FeedbackForm';
+import { ShareButton } from './ShareButton';
 import Link from 'next/link';
 
 // ============================================
@@ -125,7 +126,7 @@ export default async function TeacherPage({
             </div>
             
             {/* Stats */}
-            <div className="mt-6 pt-6 border-t border-border">
+            <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
               <div className="flex flex-wrap gap-6">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-accent">{stats.total}</p>
@@ -136,6 +137,7 @@ export default async function TeacherPage({
                   <p className="text-sm text-text-secondary">Published</p>
                 </div>
               </div>
+              <ShareButton teacherId={teacher.id} />
             </div>
           </div>
 

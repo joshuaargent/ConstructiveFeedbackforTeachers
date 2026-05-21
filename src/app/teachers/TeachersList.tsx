@@ -174,11 +174,17 @@ function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
             <input
               ref={searchInputRef}
               type="text"
-              placeholder="Search teachers by name or subject... (⌘K)"
+              placeholder="Search by name or subject..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full h-12 rounded-lg border border-border bg-bg-card pl-10 pr-10 py-2 text-base placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-all duration-200"
+              aria-label="Search teachers"
             />
+            {/* Keyboard hint */}
+            <div className="mt-2 flex items-center gap-4 text-xs text-text-muted">
+              <span><kbd className="rounded bg-bg-secondary px-1.5 py-0.5 font-mono">⌘K</kbd> to search</span>
+              <span><kbd className="rounded bg-bg-secondary px-1.5 py-0.5 font-mono">Esc</kbd> to clear</span>
+            </div>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
