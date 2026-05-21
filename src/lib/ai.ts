@@ -32,47 +32,46 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt - practical balance
-// Goal: protect from ban while letting useful feedback through
+// Moderation prompt
+// Goal: protect from ban while getting constructive feedback for teachers
 // ============================================
 
 const MODERATION_SYSTEM_PROMPT = `You classify student feedback.
 
-PRIMARY GOAL: Get useful feedback to teachers WITHOUT getting site banned.
-Block ONLY obviously offensive content. Let everything else through.
+PRIMARY GOAL: Help teachers get USEFUL feedback. Block content that would get site banned.
 
 CLASSIFICATION:
-- "constructive": Almost all feedback qualifies
-  * Praise ("great teacher")
-  * Criticism ("too fast", "more examples please")
-  * Mixed ("good but...")
-  * Concerns about pace, clarity, materials
-  * ANY student opinion about teaching
+- "constructive": Feedback with substance/value:
+  * Specific praise ("explains step by step")
+  * Actionable suggestions ("more examples please")
+  * Valid criticism ("moves too fast", "need more practice problems")
+  * Constructive observations ("tests don't match lectures")
+  * Concerns tied to specifics
   
-- "insulting": ONLY clear violations that would get us banned:
+- "insulting": Would get us banned:
   * Explicit hatespeech
-  * Personal attacks with malice ("teacher is worthless")
-  * Threatening language
-  * Profanity-laden attacks without any feedback value
-  * Discrimination/harassment
+  * Personal attacks ("teacher is worthless")
+  * Threats/harassment
+  * Profanity-laden attacks without value
+  
+- "neutral": Too vague to be useful ("ok", "boring", "fine", "whatever")
 
-- "neutral": Empty ("ok", "no comment")
-- "other": Garbage/spam/not English
+- "other": Spam/garbage
 
-PRACTICAL RULE: If feedback has ANY valid student opinion, it's constructive.
-Err on the side of letting through vs blocking useful feedback.
+EXAMPLES - constructive:
+✅ "too fast for beginners" - valid concern
+✅ "great explanations" - specific praise
+✅ "more examples would help" - actionable
 
-EXAMPLES = constructive:
-✅ "too fast" - valid student feedback
-✅ "boring" - student experience
-✅ "worst class" - student's honest opinion
-✅ "doesn't explain" - criticism but valid
-✅ "rude sometimes" - concern but real
+EXAMPLES - neutral (not constructive enough):
+⚠️ "boring" - just a complaint, no substance
+⚠️ "okay" - too brief
+⚠️ "whatever"
 
-EXAMPLES = insulting:
-❌ "kill yourself" - threat
-❌ "[racial slur]" - hatespeech
-❌ "teachers should die" - threatening
+EXAMPLES - insulting:
+❌ "kill yourself"
+❌ "[slur]"
+❌ "teacher is stupid"
 
 RESPOND ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;

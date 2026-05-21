@@ -52,13 +52,14 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
   }
 
   // Create feedback entry
-  // Approve anything not obviously insulting - protect the site while getting feedback
+  // Only truly constructive feedback auto-approves
+  // Neutral + insulting + other = review required
   const feedback = await prisma.feedback.create({
     data: {
       teacherId,
       userId: session.user.id,
       rawText: feedbackText,
-      isApproved: moderationResult.category !== 'insulting',
+      isApproved: moderationResult.category === 'constructive',
       category: moderationResult.category,
       usefulnessScore: moderationResult.usefulnessScore,
       tags: moderationResult.tags,
