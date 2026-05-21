@@ -4,8 +4,12 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use OpenRouter's automatic free model selection
-const DEFAULT_MODEL = 'openrouter/free';
+// Use a specific reliable model for consistent results
+// Google Gemini Flash is fast, free tier friendly, and high quality
+const DEFAULT_MODEL = 'google/gemini-2.0-flash-001';
+
+// Fallback model if default isn't available
+const FALLBACK_MODEL = 'deepseek/deepseek-chat';
 
 // ============================================
 // Type definitions
@@ -25,106 +29,123 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt (embedded in code)
+// Moderation prompt (optimized for quality)
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are a classifier for student feedback about teachers.  
-Your job is to:
-1. Decide whether the feedback is constructive, neutral, insulting, or other.  
-2. Assign a usefulness score between 0 and 1, where:
-   - 0 = not useful at all for teacher improvement  
-   - 1 = extremely useful and actionable  
-3. Extract 2–5 high-level tags that describe the main themes of the feedback (e.g. "communication", "organisation", "clarity", "pace", "supportiveness").
+const MODERATION_SYSTEM_PROMPT = `You are an expert feedback classifier for student feedback about teachers.
 
-The feedback may contain slang, emotion, or informal language.  
-You must treat anything that includes insults, name-calling, harassment, or personal attacks as **insulting**, even if there is some useful content.
+Your task is to analyze each piece of feedback and:
+1. Classify it as: constructive (helpful for growth), neutral (OK but not actionable), insulting (harmful/name-calling), or other (unclear/off-topic)
+2. Rate usefulness 0-1 (how actionable is this for teacher improvement?)
+3. Extract 2-5 topic tags (e.g., "communication", "organization", "clarity", "pace", "supportiveness", "homework", "exams")
 
-Return your answer as **strict JSON** with the following shape:
+Classification Rules:
+- "constructive": Specific, actionable, kind feedback like "Explains concepts clearly" or "Would appreciate more examples"
+- "neutral": General statements without clear action items like "He's fine" or "The class was okay"
+- "insulting": ANY personal attacks, name-calling, harassment, or hostile language - even mixed with useful content
+- "other": Spam, gibberish, or unclear content
 
+Rate usefulness as:
+- 1.0 = Highly specific and actionable ("Great at breaking down complex math problems")
+- 0.7 = Actionable but could be more specific  
+- 0.5 = Moderate usefulness
+- 0.3 = Slightly useful
+- 0.0 = Not useful at all
+
+Respond with STRICT JSON only:
+{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": number, "tags": string[]}`;
+
+// ============================================
+// Summary generation prompt (optimized for quality)
+// ============================================
+
+const SUMMARY_SYSTEM_PROMPT = `You are generating a thoughtful, growth-oriented summary of student feedback for a teacher. Your audience is a professional who wants to improve.
+
+Guidelines:
+1. **Identify 2-4 main themes** - What's students mentioning most? Group similar feedback.
+2. **Highlight genuine strengths** - What do students consistently praise? Be specific.
+3. **Suggest growth areas** - Frame as opportunities, not criticisms. "Consider adding..." vs "They never..."
+4. **Safe paraphrases** - Never include actual student words. Paraphrase supportively.
+
+Tone: Professional, warm, encouraging - like a supportive colleague giving feedback.
+
+What to AVOID:
+- Don't quote students directly
+- Don't mention grades or scores
+- Don't generalize personality ("The teacher is lazy")
+- Don't include anything that could identify students
+
+Output format (JSON):
 {
-  "category": "constructive" | "neutral" | "insulting" | "other",
-  "usefulnessScore": number,  // between 0 and 1
-  "tags": string[]
-}
-
-Do not include any extra fields. Do not include explanations. Only return JSON.`;
-
-// ============================================
-// Summary generation prompt (embedded in code)
-// ============================================
-
-const SUMMARY_SYSTEM_PROMPT = `You are generating a supportive, professional summary of student feedback for a teacher.  
-The goal is to help the teacher grow while protecting their wellbeing.  
-You will be given multiple feedback entries that have already been filtered to remove insults and harmful content.
-
-Your tasks:
-1. Identify the main themes in the feedback.  
-2. Highlight the teacher's strengths.  
-3. Gently describe growth opportunities in a constructive, non-judgemental way.  
-4. Provide a few short, paraphrased example comments that are safe and supportive.
-
-Very important rules:
-- Use a calm, neutral, and encouraging tone.  
-- Do not include any insults, harsh language, or personal attacks.  
-- Do not speculate about the teacher's personality or character.  
-- Focus on behaviours and teaching practices, not the teacher as a person.  
-- Do not include any direct quotes from students; always paraphrase.  
-- Do not mention scores, ratings, or anything that feels like grading the teacher.
-
-Return your answer as JSON with this shape:
-
-{
-  "overallThemes": string,           // 1–2 paragraphs
-  "strengthHighlights": string,      // bullet-style text or short paragraphs
-  "growthOpportunities": string,     // gentle, actionable suggestions
-  "safeParaphrasedComments": string  // a few short paraphrased comments
-}
-
-Do not include any extra fields. Do not include explanations. Only return JSON.`;
+  "overallThemes": "2-3 sentences on main patterns",
+  "strengthHighlights": "2-3 specific things students appreciate",
+  "growthOpportunities": "2-3 gentle improvement suggestions", 
+  "safeParaphrasedExamples": "2-3 anonymized example comments"
+}`;
 
 // ============================================
-// API helper functions
+// API helper functions with retry logic
 // ============================================
 
 async function callOpenRouter(
   userMessage: string,
   systemPrompt: string,
+  retryCount = 0,
 ): Promise<unknown> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not set');
   }
 
-  const response = await fetch(OPENROUTER_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      'X-Title': 'Constructive Feedback for Teachers',
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      response_format: { type: 'json_object' },
-    }),
-  });
+  const models = [DEFAULT_MODEL, FALLBACK_MODEL, 'openrouter/auto'];
+  const currentModel = models[retryCount % models.length];
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+  try {
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'X-Title': 'Constructive Feedback for Teachers',
+      },
+      body: JSON.stringify({
+        model: currentModel,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.3, // Lower temperature for more consistent output
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      
+      // Retry on rate limit or model errors
+      if ((response.status === 429 || response.status >= 500) && retryCount < 2) {
+        console.log(`[AI] Retrying with model ${models[(retryCount + 1) % models.length]}...`);
+        return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
+      }
+      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('Invalid response from OpenRouter');
+    }
+
+    return JSON.parse(content);
+  } catch (error) {
+    // Retry on parse errors or network issues
+    if (retryCount < 2) {
+      console.log(`[AI] Retrying after error: ${error}`);
+      return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
+    }
+    throw error;
   }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-
-  if (!content) {
-    throw new Error('Invalid response from OpenRouter');
-  }
-
-  return JSON.parse(content);
 }
 
 // ============================================
