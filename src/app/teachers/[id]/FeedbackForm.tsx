@@ -78,6 +78,20 @@ export function FeedbackForm({ teacherId }: FeedbackFormProps) {
           rows={5}
           disabled={isSubmitting}
         />
+        
+        {/* Constructive feedback guide */}
+        <div className="mt-3 rounded-lg bg-bg-secondary p-3 text-xs text-text-secondary">
+          <p className="font-medium text-text-primary mb-2">What makes feedback constructive?</p>
+          <ul className="space-y-1 list-disc list-inside">
+            <li>Specific: Mention concrete things (&quot;explains step by step&quot;, &quot;needs more examples&quot;)</li>
+            <li>Actionable: Suggest improvements (&quot;could slow down&quot;, &quot;more practice problems would help&quot;)</li>
+            <li>Fair: Focus on teaching, not personal attacks</li>
+          </ul>
+          <p className="mt-2 italic">
+            Avoid: Personal attacks (&quot;lazy&quot;, &quot;incompetent&quot;), mixed praise+criticism, vague complaints
+          </p>
+        </div>
+        
         <button
           type="submit"
           disabled={isSubmitting || !feedbackText.trim()}
