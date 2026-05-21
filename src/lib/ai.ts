@@ -6,9 +6,9 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Use reliable free models with fallbacks - best chance of getting a working model
 const FREE_MODELS = [
-  'nvidia/nemotron-3-super-120b-a12b:free',  // Large but capable
+  'nvidia/nemotron-3-super-120b-a12b:free', // Large but capable
   'nvidia/nemotron-nano-9b-v2-velarde:free', // Fast fallback
-  'openrouter/free',                       // Ultimate fallback
+  'openrouter/free', // Ultimate fallback
 ];
 
 // Maximum retries for transient failures
@@ -32,7 +32,6 @@ export interface SummaryResult {
 }
 
 // ============================================
-// ============================================
 // Moderation prompt - classify feedback for safety
 // ============================================
 
@@ -50,7 +49,7 @@ CLASSIFICATION:
 EXAMPLES:
 * "good but he's lazy" = insulting
 
-RESPOND JSON:
+RESPOND ONLY with valid JSON:
 {"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": []}`;
 
 // ============================================
@@ -68,7 +67,7 @@ Output JSON: overallThemes, strengthHighlights, growthOpportunities, safeParaphr
 async function callOpenRouter(
   userMessage: string,
   systemPrompt: string,
-  retryCount = 0,
+  retryCount = 0
 ): Promise<unknown> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not set');
@@ -102,7 +101,9 @@ async function callOpenRouter(
 
       // Retry on rate limit (429) or server errors (500+) - try next model
       if ((response.status === 429 || response.status >= 500) && retryCount < MAX_RETRIES) {
-        console.log(`[AI] Retrying with ${currentModel} after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+        console.log(
+          `[AI] Retrying with ${currentModel} after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`
+        );
         return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
       }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
@@ -119,7 +120,9 @@ async function callOpenRouter(
   } catch (error) {
     // Retry on parse errors or network issues - try next model
     if (retryCount < MAX_RETRIES) {
-      console.log(`[AI] Retrying after error with next model: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      console.log(
+        `[AI] Retrying after error with next model: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`
+      );
       return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
     }
     throw error;
@@ -138,7 +141,7 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
   // First pass - main classification
   const result = await callOpenRouter(
     `Feedback to classify:\n\n${feedbackText}`,
-    MODERATION_SYSTEM_PROMPT,
+    MODERATION_SYSTEM_PROMPT
   );
 
   // Type guard to validate the result
@@ -156,12 +159,12 @@ export async function moderateFeedback(feedbackText: string): Promise<Moderation
   const validCategories = ['constructive', 'neutral', 'insulting', 'other'];
   const rawCategory = String(result.category);
   const finalCategory = validCategories.includes(rawCategory)
-    ? rawCategory as 'constructive' | 'neutral' | 'insulting' | 'other'
+    ? (rawCategory as 'constructive' | 'neutral' | 'insulting' | 'other')
     : 'other';
 
   const usefulnessScore = Math.max(
     0,
-    Math.min(1, typeof result.usefulnessScore === 'number' ? result.usefulnessScore : 0),
+    Math.min(1, typeof result.usefulnessScore === 'number' ? result.usefulnessScore : 0)
   );
 
   const tags = Array.isArray(result.tags) ? result.tags : [];
@@ -182,7 +185,7 @@ export async function generateTeacherSummary(
     rawText: string;
     tags: string[];
     usefulnessScore: number;
-  }>,
+  }>
 ): Promise<SummaryResult> {
   // Format feedback for the AI
   const feedbackFormatted = feedbackEntries
@@ -191,13 +194,13 @@ export async function generateTeacherSummary(
         `Feedback ${index + 1}:
 Text: ${entry.rawText}
 Tags: ${entry.tags.join(', ')}
-Usefulness: ${entry.usefulnessScore}`,
+Usefulness: ${entry.usefulnessScore}`
     )
     .join('\n\n');
 
   const result = await callOpenRouter(
     `Here are ${feedbackEntries.length} feedback entries to summarize:\n\n${feedbackFormatted}`,
-    SUMMARY_SYSTEM_PROMPT,
+    SUMMARY_SYSTEM_PROMPT
   );
 
   // Type guard to validate the result
