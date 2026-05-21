@@ -7,6 +7,9 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 // Use OpenRouter's free model routing - automatically uses free credits
 const DEFAULT_MODEL = 'openrouter/free';
 
+// Maximum retries for transient failures
+const MAX_RETRIES = 2;
+
 // ============================================
 // Type definitions
 // ============================================
@@ -70,6 +73,7 @@ Response format (JSON):
 async function callOpenRouter(
   userMessage: string,
   systemPrompt: string,
+  retryCount = 0,
 ): Promise<unknown> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not set');
@@ -97,6 +101,12 @@ async function callOpenRouter(
 
     if (!response.ok) {
       const errorText = await response.text();
+
+      // Retry on rate limit (429) or server errors (500+)
+      if ((response.status === 429 || response.status >= 500) && retryCount < MAX_RETRIES) {
+        console.log(`[AI] Retrying after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+        return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
+      }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
@@ -109,6 +119,11 @@ async function callOpenRouter(
 
     return JSON.parse(content);
   } catch (error) {
+    // Retry on parse errors or network issues
+    if (retryCount < MAX_RETRIES) {
+      console.log(`[AI] Retrying after error: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
+    }
     throw error;
   }
 }
