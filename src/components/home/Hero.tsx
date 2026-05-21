@@ -1,6 +1,16 @@
 import Link from 'next/link';
 import { Heart, Users, GraduationCap } from 'lucide-react';
 
+// Popular subjects for quick access
+const popularSubjects = [
+  'Mathematics',
+  'Computer Science',
+  'Physics',
+  'Chemistry',
+  'History',
+  'English Literature',
+];
+
 // ============================================
 // Homepage - Landing page for the app
 // ============================================
@@ -33,6 +43,24 @@ export function Hero() {
             >
               Sign In
             </Link>
+          </div>
+        </div>
+
+        {/* Quick Subject Access */}
+        <div className="mt-12 text-center">
+          <p className="mb-4 text-sm font-medium text-text-secondary">
+            Or browse by subject:
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {popularSubjects.map(subject => (
+              <Link
+                key={subject}
+                href={`/teachers?subject=${encodeURIComponent(subject)}`}
+                className="rounded-full border border-border bg-bg-card px-4 py-2 text-sm font-medium text-text-secondary transition-all duration-200 hover:border-accent hover:text-accent"
+              >
+                {subject}
+              </Link>
+            ))}
           </div>
         </div>
 

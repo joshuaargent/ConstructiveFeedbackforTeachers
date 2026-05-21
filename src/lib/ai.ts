@@ -4,7 +4,7 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Use OpenRouter's automatic free model selection
+// Use OpenRouter's free model routing - automatically uses free credits
 const DEFAULT_MODEL = 'openrouter/free';
 
 // ============================================
@@ -25,65 +25,46 @@ export interface SummaryResult {
 }
 
 // ============================================
-// Moderation prompt (embedded in code)
+// Moderation prompt (optimized for quality)
 // ============================================
 
-const MODERATION_SYSTEM_PROMPT = `You are a classifier for student feedback about teachers.  
-Your job is to:
-1. Decide whether the feedback is constructive, neutral, insulting, or other.  
-2. Assign a usefulness score between 0 and 1, where:
-   - 0 = not useful at all for teacher improvement  
-   - 1 = extremely useful and actionable  
-3. Extract 2–5 high-level tags that describe the main themes of the feedback (e.g. "communication", "organisation", "clarity", "pace", "supportiveness").
+const MODERATION_SYSTEM_PROMPT = `You are an expert feedback classifier for student feedback about teachers.
 
-The feedback may contain slang, emotion, or informal language.  
-You must treat anything that includes insults, name-calling, harassment, or personal attacks as **insulting**, even if there is some useful content.
+Classify each feedback:
+- constructive: Helpful, specific, actionable
+- neutral: OK but vague/general
+- insulting: Personal attacks, name-calling, hostility
+- other: Spam, unclear
 
-Return your answer as **strict JSON** with the following shape:
+Rate usefulness 0-1 based on actionability.
+Extract 2-5 topic tags like "communication", "organization", "clarity", "pace".
 
-{
-  "category": "constructive" | "neutral" | "insulting" | "other",
-  "usefulnessScore": number,  // between 0 and 1
-  "tags": string[]
-}
-
-Do not include any extra fields. Do not include explanations. Only return JSON.`;
+Respond ONLY with valid JSON:
+{"category": "constructive"|"neutral"|"insulting"|"other", "usefulnessScore": 0.0-1.0, "tags": ["tag1", "tag2"]}`;
 
 // ============================================
-// Summary generation prompt (embedded in code)
+// Summary generation prompt - optimized for readability
 // ============================================
 
-const SUMMARY_SYSTEM_PROMPT = `You are generating a supportive, professional summary of student feedback for a teacher.  
-The goal is to help the teacher grow while protecting their wellbeing.  
-You will be given multiple feedback entries that have already been filtered to remove insults and harmful content.
+const SUMMARY_SYSTEM_PROMPT = `You are a supportive teaching coach creating a brief summary of student feedback.
 
-Your tasks:
-1. Identify the main themes in the feedback.  
-2. Highlight the teacher's strengths.  
-3. Gently describe growth opportunities in a constructive, non-judgemental way.  
-4. Provide a few short, paraphrased example comments that are safe and supportive.
+Keep each section SHORT and SCANNABLE:
+- Overall Themes: 2 sentences max on what students mention most
+- Strengths: 2-3 specific things students appreciate (bullet style OK)
+- Growth: 2-3 gentle suggestions framed positively
+- Quotes: 2-3 short paraphrased comments (not real student words)
 
-Very important rules:
-- Use a calm, neutral, and encouraging tone.  
-- Do not include any insults, harsh language, or personal attacks.  
-- Do not speculate about the teacher's personality or character.  
-- Focus on behaviours and teaching practices, not the teacher as a person.  
-- Do not include any direct quotes from students; always paraphrase.  
-- Do not mention scores, ratings, or anything that feels like grading the teacher.
+Rules:
+- Be concise, use short paragraphs
+- Frame growth as "opportunities" not criticism  
+- Use simple, clear language
+- Never include identifying info
 
-Return your answer as JSON with this shape:
-
-{
-  "overallThemes": string,           // 1–2 paragraphs
-  "strengthHighlights": string,      // bullet-style text or short paragraphs
-  "growthOpportunities": string,     // gentle, actionable suggestions
-  "safeParaphrasedComments": string  // a few short paraphrased comments
-}
-
-Do not include any extra fields. Do not include explanations. Only return JSON.`;
+Response format (JSON):
+{"overallThemes": "short paragraph", "strengthHighlights": "bullets or short paragraphs", "growthOpportunities": "short suggestions", "safeParaphrasedComments": "short quotes"}`;
 
 // ============================================
-// API helper functions
+// API helper functions with retry logic
 // ============================================
 
 async function callOpenRouter(
@@ -94,37 +75,42 @@ async function callOpenRouter(
     throw new Error('OPENROUTER_API_KEY is not set');
   }
 
-  const response = await fetch(OPENROUTER_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      'X-Title': 'Constructive Feedback for Teachers',
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      response_format: { type: 'json_object' },
-    }),
-  });
+  try {
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'X-Title': 'Constructive Feedback for Teachers',
+      },
+      body: JSON.stringify({
+        model: DEFAULT_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('Invalid response from OpenRouter');
+    }
+
+    return JSON.parse(content);
+  } catch (error) {
+    throw error;
   }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-
-  if (!content) {
-    throw new Error('Invalid response from OpenRouter');
-  }
-
-  return JSON.parse(content);
 }
 
 // ============================================

@@ -42,16 +42,19 @@ export const meta = {
 export const mainNav = [
   { label: 'Home', href: '/' },
   { label: 'Teachers', href: '/teachers' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export const footerNav = {
   main: [
     { label: 'Home', href: '/' },
     { label: 'Teachers', href: '/teachers' },
+    { label: 'Contact', href: '/contact' },
   ],
   content: [
     { label: 'Home', href: '/' },
     { label: 'Teachers', href: '/teachers' },
+    { label: 'Contact', href: '/contact' },
   ],
   social: [
     { label: 'YouTube', href: siteConfig.links.youtube },
