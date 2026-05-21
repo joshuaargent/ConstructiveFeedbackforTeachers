@@ -140,53 +140,57 @@ export default async function TeacherPage({
             </div>
           </div>
 
-          {/* Summary Sections */}
+          {/* Summary Sections - Grid Layout */}
           {summary && (
-            <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
               {/* Overall Themes */}
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm md:col-span-2">
                 <div className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-accent" />
                   <h2 className="text-lg font-semibold text-text-primary">
                     Overall Themes
                   </h2>
                 </div>
-                <p className="mt-3 text-text-secondary">{summary.overallThemes}</p>
+                <p className="mt-3 text-text-secondary whitespace-pre-line">
+                  {summary.overallThemes}
+                </p>
               </div>
 
-              {/* Strength Highlights */}
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+              {/* Strength Highlights - Green */}
+              <div className="rounded-xl border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20 p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold text-text-primary">
+                  <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <h2 className="text-lg font-semibold text-green-800 dark:text-green-200">
                     Strengths
                   </h2>
                 </div>
-                <p className="mt-3 text-text-secondary">{summary.strengthHighlights}</p>
+                <p className="mt-3 text-green-700 dark:text-green-300 whitespace-pre-line">
+                  {summary.strengthHighlights}
+                </p>
               </div>
 
-              {/* Growth Opportunities */}
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+              {/* Growth Opportunities - Amber */}
+              <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold text-text-primary">
-                    Growth Opportunities
+                  <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  <h2 className="text-lg font-semibold text-amber-800 dark:text-amber-200">
+                    Growth Areas
                   </h2>
                 </div>
-                <p className="mt-3 text-text-secondary">
+                <p className="mt-3 text-amber-700 dark:text-amber-300 whitespace-pre-line">
                   {summary.growthOpportunities}
                 </p>
               </div>
 
-              {/* Safe Paraphrased Comments */}
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
+              {/* What Students Are Saying */}
+              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm md:col-span-2">
                 <div className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5 text-accent" />
                   <h2 className="text-lg font-semibold text-text-primary">
                     What Students Are Saying
                   </h2>
                 </div>
-                <p className="mt-3 text-text-secondary">
+                <p className="mt-3 text-text-secondary whitespace-pre-line">
                   {summary.safeParaphrasedComments}
                 </p>
               </div>
