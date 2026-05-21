@@ -11,34 +11,164 @@ const prisma = new PrismaClient();
 
 const teachers = [
   {
-    name: 'Dr. Sarah Johnson',
+    name: 'Mrs Harbour',
     subject: 'Mathematics',
-    bio: 'Dr. Johnson has been teaching mathematics for 15 years with a focus on making calculus accessible to all students.',
+    bio: '.',
   },
   {
-    name: 'Prof. Michael Chen',
+    name: 'Mrs Boon',
+    subject: 'PT',
+    bio: '.',
+  },
+  {
+    name: 'Ms Browne',
+    subject: 'PT',
+    bio: '.',
+  },
+  {
+    name: 'Mr Webster',
+    subject: 'PT',
+    bio: '.',
+  },
+  {
+    name: 'Ms Watling',
+    subject: 'Principal',
+    bio: '.',
+  },
+  {
+    name: 'Mr Cleary',
+    subject: 'PE',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Everson',
+    subject: 'Geography & SLT',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Magness',
+    subject: 'Geography',
+    bio: '.',
+  },
+  {
+    name: 'Mr Burton',
+    subject: 'Business',
+    bio: 'Top man',
+  },
+  {
+    name: 'Mrs Clelland',
+    subject: 'Careers',
+    bio: '.',
+  },
+  {
+    name: 'Mr Powell',
     subject: 'Computer Science',
-    bio: 'Professor Chen specializes in algorithms and data structures, with a passion for helping students think like programmers.',
+    bio: '.',
   },
   {
-    name: 'Ms. Emily Rodriguez',
-    subject: 'English Literature',
-    bio: 'Ms. Rodriguez brings literature to life through engaging discussions and creative writing exercises.',
+    name: 'Mrs Brunton',
+    subject: 'Computer Science',
+    bio: '.',
   },
   {
-    name: 'Dr. James Wilson',
+    name: 'Mrs Vassallo',
+    subject: 'Business',
+    bio: 'Choir singer',
+  },
+  {
+    name: 'Mrs Dhillon',
+    subject: 'Maths',
+    bio: '.',
+  },
+  {
+    name: 'Mr Magness',
+    subject: 'Law & History',
+    bio: '.',
+  },
+  {
+    name: 'Ms Angell',
+    subject: 'Media',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Robinson',
+    subject: 'PE',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Charman',
+    subject: 'Psychology',
+    bio: 'Runs a lot',
+  },
+  {
+    name: 'Mr Charman',
+    subject: 'Psychology',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Hannam',
+    subject: 'Psychology',
+    bio: '.',
+  },
+  {
+    name: 'Ms Cannon',
+    subject: 'Sociology',
+    bio: '.',
+  },
+  {
+    name: 'Mr Green',
+    subject: 'Drama',
+    bio: '.',
+  },
+  {
+    name: 'Mr Green',
     subject: 'Physics',
-    bio: 'Dr. Wilson makes physics exciting through hands-on experiments and real-world applications.',
+    bio: '.',
   },
   {
-    name: 'Mrs. Amanda Foster',
+    name: 'Mrs Kempton',
+    subject: 'Drama',
+    bio: '.',
+  },
+  {
+    name: 'Mr Ballard',
+    subject: 'English',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Marden',
+    subject: 'English & SLT',
+    bio: '.',
+  },
+  {
+    name: 'Ms Conniford',
+    subject: 'Textiles',
+    bio: '.',
+  },
+  {
+    name: 'Mr Connell',
+    subject: 'Art',
+    bio: '.',
+  },
+  {
+    name: 'The Sixth Form Dinner Ladies',
+    subject: 'Canteen',
+    bio: 'The best dinner ladies you have ever seen',
+  },
+  {
+    name: 'Mr Tulip',
+    subject: 'Law',
+    bio: '.',
+  },
+  {
+    name: 'Mrs Evans',
     subject: 'History',
-    bio: 'Mrs. Foster brings history to life with stories that connect the past to the present.',
+    bio: '.',
   },
   {
-    name: 'Mr. David Park',
-    subject: 'Chemistry',
-    bio: 'Mr. Park is known for his patient approach and ability to explain complex chemical concepts simply.',
+    name: 'Mr Andrews',
+    subject: 'PE',
+    bio: '.',
   },
 ];
 
@@ -50,7 +180,7 @@ async function main() {
 
   // Create admin user
   const hashedPassword = await hash(adminPassword, 12);
-  
+
   const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {},
