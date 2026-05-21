@@ -116,6 +116,22 @@ export async function getTeacherSummary(teacherId: string) {
     return null;
   }
 
+  // Don't generate AI summary if too few feedback items (need at least 3 for meaningful patterns)
+  const MIN_FEEDBACK_FOR_SUMMARY = 3;
+  if (approvedFeedback.length < MIN_FEEDBACK_FOR_SUMMARY) {
+    // Return partial summary showing count
+    if (existingSummary) {
+      return existingSummary;
+    }
+    // Return a waiting message
+    return {
+      overallThemes: `${approvedFeedback.length} piece${approvedFeedback.length === 1 ? '' : 's'} of feedback so far. Need ${MIN_FEEDBACK_FOR_SUMMARY} for full analysis.`,
+      strengthHighlights: 'Gathering more feedback...',
+      growthOpportunities: 'Gathering more feedback...',
+      safeParaphrasedComments: 'Not enough feedback yet to identify patterns.',
+    };
+  }
+
   // Generate new summary using AI
   let newSummary;
   try {
@@ -123,6 +139,12 @@ export async function getTeacherSummary(teacherId: string) {
   } catch (aiError) {
     console.error('AI summary generation error:', aiError);
     // If AI fails, return existing summary or default
+    return existingSummary || null;
+  }
+
+  // Validate AI response has all required fields
+  if (!newSummary?.overallThemes || !newSummary?.strengthHighlights) {
+    console.error('Invalid AI summary response');
     return existingSummary || null;
   }
 
