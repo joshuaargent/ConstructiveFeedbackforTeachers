@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { GraduationCap, Lightbulb, TrendingUp, MessageCircle, ArrowLeft } from 'lucide-react';
+import { GraduationCap, ArrowLeft } from 'lucide-react';
 import { prisma } from '@/lib/db';
 import { auth } from '@/lib/auth';
-import { getTeacherSummary } from '@/app/actions/feedback';
 import { FeedbackForm } from '@/components/teachers/FeedbackForm';
 import { ShareButton } from '@/components/teachers/ShareButton';
+import { TeacherSummary } from '@/components/teachers/TeacherSummary';
 import Link from 'next/link';
 
 // ============================================
@@ -83,7 +83,6 @@ export default async function TeacherPage({
   const { id } = await params;
   const teacher = await getTeacher(id);
   const session = await auth();
-  const summary = await getTeacherSummary(id);
 
   if (!teacher) {
     notFound();
@@ -142,62 +141,8 @@ export default async function TeacherPage({
             </div>
           </div>
 
-          {summary ? (
-            <div className="mt-6 space-y-6">
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold text-text-primary">
-                    Overall Themes
-                  </h2>
-                </div>
-                <p className="mt-3 text-text-secondary">{summary.overallThemes}</p>
-              </div>
-
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-accent" />
-                    <h2 className="text-lg font-semibold text-text-primary">
-                      Strengths
-                    </h2>
-                  </div>
-                  <p className="mt-3 text-text-secondary">{summary.strengthHighlights}</p>
-                </div>
-
-                <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-accent" />
-                    <h2 className="text-lg font-semibold text-text-primary">
-                      Growth Opportunities
-                    </h2>
-                  </div>
-                  <p className="mt-3 text-text-secondary">
-                    {summary.growthOpportunities}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border bg-bg-card p-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold text-text-primary">
-                    What Students Are Saying
-                  </h2>
-                </div>
-                <p className="mt-3 text-text-secondary">
-                  {summary.safeParaphrasedComments}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-6 rounded-xl border border-border bg-bg-card p-8 text-center shadow-sm">
-              <Lightbulb className="mx-auto h-12 w-12 text-text-muted" />
-              <p className="mt-4 text-text-secondary">
-                No feedback summary yet. Be the first to share constructive feedback!
-              </p>
-            </div>
-          )}
+          {/* Summary loaded client-side for faster initial page load */}
+          <TeacherSummary teacherId={teacher.id} />
 
           <div className="mt-8">
             {session?.user ? (
