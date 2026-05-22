@@ -12,7 +12,7 @@
 ## Features
 
 - **AI Powered Moderation** - Automatic filtering of feedback using OpenRouter's advanced language models
-- **Constructive-First Approach** - Only truly helpful feedback reaches teachers automatically
+- **Constructive First Approach** - Only truly helpful feedback reaches teachers automatically
 - **Privacy-Protected Summaries** - Teachers receive aggregated themes, never individual comments
 - **Multi-Layer Safety** - Blocks hate speech, personal attacks, and mixed feedback with insults
 - **3 Tier AI Fallback** - Reliable moderation with Nemotron Super → Nemotron Nano → Free tier
@@ -23,7 +23,7 @@
 ```
 Student submits feedback → AI evaluates tone & quality
         ↓
-[Constructive + Specific + Actionable] → Auto-approved to summary
+[Constructive + Specific + Actionable] → Auto approved to summary
         ↓
 [Neutral / Insulting / Mixed] → Flagged for manual review
         ↓
