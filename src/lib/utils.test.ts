@@ -2,9 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   cn,
   formatDate,
-  formatRelativeTime,
-  formatShortDate,
-  formatISODate,
   formatNumber,
   formatCompactNumber,
   formatDuration,
@@ -18,7 +15,6 @@ import {
   filterBySearch,
   isValidEmail,
   isValidUrl,
-  sleep,
   generateId,
   randomItem,
   shuffle,
@@ -31,7 +27,8 @@ describe("cn - class name utility", () => {
   });
 
   it("handles conditional classes", () => {
-    const result = cn("base-class", undefined && "conditional-class");
+    const condition = false;
+    const result = cn("base-class", condition && "conditional-class");
     expect(result).toContain("base-class");
   });
 });
