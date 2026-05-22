@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { TeachersList } from './TeachersList';
+import { TeachersList } from '@/components/teachers/TeachersList';
 
 // ============================================
 // Types

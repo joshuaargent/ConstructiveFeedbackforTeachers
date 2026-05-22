@@ -5,6 +5,7 @@ import {
   type ButtonHTMLAttributes,
   type ReactNode,
   type ReactElement,
+  type PropsWithChildren,
   cloneElement,
   isValidElement,
 } from 'react';
@@ -83,15 +84,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonStyles = cn(buttonBaseStyles, variantStyles, sizeStyles[size], className);
 
     if (asChild && isValidElement(children)) {
-      const child = children as ReactElement<{ className?: string; [key: string]: unknown }>;
+      const child = children as ReactElement<{ className?: string; children?: ReactNode }>;
       const childClassName = child.props.className;
       const mergedClassName = cn(buttonStyles, childClassName);
 
+      // Use the child element with merged className and ref
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { className: _unused, ...childProps } = child.props as Record<string, unknown>;
       return cloneElement(child, {
         className: mergedClassName,
+        ...childProps,
         ref,
-        ...props,
-      } as any);
+      } as PropsWithChildren<unknown>);
     }
 
     return (

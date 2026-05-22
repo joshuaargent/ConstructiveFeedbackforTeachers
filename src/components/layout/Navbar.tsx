@@ -31,7 +31,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu on route change - sync with router
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);

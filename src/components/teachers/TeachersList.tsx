@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { GraduationCap, Search, X, ChevronDown, MessageCircle } from 'lucide-react';
@@ -41,7 +41,6 @@ function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('name-asc');
-  const [isMounted, setIsMounted] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize from URL after mount
@@ -50,7 +49,6 @@ function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
     if (subject) {
       setSelectedSubject(subject);
     }
-    setIsMounted(true);
   }, [searchParams]);
   
   // Keyboard shortcut: Cmd/Ctrl + K to focus search, Escape to clear
@@ -82,8 +80,11 @@ function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
   }, [teachers]);
 
   // Check if teacher teaches a specific subject (handles multi-subject)
-  const teachesSubject = (teacher: TeacherWithCount, subject: string) => 
-    getSubjects(teacher.subject).includes(subject);
+  const teachesSubject = useCallback(
+    (teacher: TeacherWithCount, subject: string) => 
+      getSubjects(teacher.subject).includes(subject),
+    []
+  );
 
   // Filter and sort teachers
   const filteredTeachers = useMemo(() => {
@@ -121,7 +122,7 @@ function TeachersList({ teachers }: { teachers: TeacherWithCount[] }) {
     }
 
     return result;
-  }, [teachers, searchQuery, selectedSubject, sortBy]);
+  }, [teachers, searchQuery, selectedSubject, sortBy, teachesSubject]);
 
   const clearFilters = () => {
     setSearchQuery('');
