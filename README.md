@@ -6,12 +6,12 @@
 
 ## Features
 
-- **AI-Powered Moderation** — Automatic filtering of feedback using OpenRouter's advanced language models
-- **Constructive-First Approach** — Only truly helpful feedback reaches teachers automatically
-- **Privacy-Protected Summaries** — Teachers receive aggregated themes, never individual comments
-- **Multi-Layer Safety** — Blocks hate speech, personal attacks, and mixed feedback with insults
-- **3-Tier AI Fallback** — Reliable moderation with Nemotron Super → Nemotron Nano → Free tier
-- **Modern Tech Stack** — Built with Next.js 16, React 19, and Tailwind CSS
+- **AI-Powered Moderation** - Automatic filtering of feedback using OpenRouter's advanced language models
+- **Constructive-First Approach** - Only truly helpful feedback reaches teachers automatically
+- **Privacy-Protected Summaries** - Teachers receive aggregated themes, never individual comments
+- **Multi-Layer Safety** - Blocks hate speech, personal attacks, and mixed feedback with insults
+- **3-Tier AI Fallback** - Reliable moderation with Nemotron Super → Nemotron Nano → Free tier
+- **Modern Tech Stack** - Built with Next.js 16, React 19, and Tailwind CSS
 
 ## How It Works
 
@@ -143,23 +143,23 @@ Create a `.env.local` file with the following variables:
 
 The platform implements multiple layers of protection:
 
-- **Constructive Threshold** — Feedback must be specific AND actionable to auto-approve
-- **Mixed Feedback Detection** — "Good but he's lazy" is flagged as insulting (manual review)
-- **Individual Privacy** — Teachers see only aggregated themes, never individual submissions
-- **Conservative Auto-Approval** — Only clearly constructive feedback reaches summaries
-- **Graceful AI Fallback** — On error, feedback defaults to manual review queue
+- **Constructive Threshold** - Feedback must be specific AND actionable to auto-approve
+- **Mixed Feedback Detection** - "Good but he's lazy" is flagged as insulting (manual review)
+- **Individual Privacy** - Teachers see only aggregated themes, never individual submissions
+- **Conservative Auto-Approval** - Only clearly constructive feedback reaches summaries
+- **Graceful AI Fallback** - On error, feedback defaults to manual review queue
 
 ## AI Moderation
 
 The platform uses OpenRouter with intelligent fallback:
 
-1. **NVIDIA Nemotron 3 Super 120B** — Primary model for nuanced classification
-2. **NVIDIA Nemotron Nano 9B** — Fallback for faster processing
-3. **openrouter/free** — Ultimate fallback ensuring service continuity
+1. **NVIDIA Nemotron 3 Super 120B** - Primary model for nuanced classification
+2. **NVIDIA Nemotron Nano 9B** - Fallback for faster processing
+3. **openrouter/free** - Ultimate fallback ensuring service continuity
 
 ## License
 
-MIT License — Open source and free to use as a template.
+MIT License - Open source and free to use as a template.
 
 ---
 
