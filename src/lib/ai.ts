@@ -67,7 +67,7 @@ CLASSIFICATION:
 - Growth: 2  suggestions framed as opportunities
 - Quotes: 2 short paraphrased comments (never real student words)
 
-RESPOND ONLY with valid (JSON):
+RESPOND ONLY with valid JSON:
 {"overallThemes": "short paragraph", "strengthHighlights": "bullets or short paragraphs", "growthOpportunities": "short suggestions", "safeParaphrasedComments": "short quotes"}`;
 
 // ============================================
