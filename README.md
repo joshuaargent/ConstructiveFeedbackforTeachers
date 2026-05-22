@@ -1,50 +1,99 @@
 # Constructive Feedback for Teachers
 
-A platform for students to share constructive feedback with teachers, designed to protect against reputational harm and content that could get the site banned.
+![Next.js](https://img.shields.io/badge/Next.js-16.2-black) ![React](https://img.shields.io/badge/React-19.2-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.2-38bdf8) ![Prisma](https://img.shields.io/badge/Prisma-5.22-2d3748) ![License](https://img.shields.io/badge/License-MIT-green)
 
-## Purpose
+> A supportive platform where students share constructive feedback to help teachers grow — with AI-powered moderation to maintain respectful discourse.
 
-- Help teachers receive useful, actionable feedback from students
-- Protect the platform from content that could lead to bans (hatespeech, threats, personal attacks)
-- Aggregate feedback into summaries so teachers don't see individual comments
+## Features
+
+- **AI-Powered Moderation** — Automatic filtering of feedback using OpenRouter's advanced language models
+- **Constructive-First Approach** — Only truly helpful feedback reaches teachers automatically
+- **Privacy-Protected Summaries** — Teachers receive aggregated themes, never individual comments
+- **Multi-Layer Safety** — Blocks hate speech, personal attacks, and mixed feedback with insults
+- **3-Tier AI Fallback** — Reliable moderation with Nemotron Super → Nemotron Nano → Free tier
+- **Modern Tech Stack** — Built with Next.js 16, React 19, and Tailwind CSS
 
 ## How It Works
 
-1. **Student submits feedback** → AI moderates it
-2. **Auto-approve**: Only truly constructive feedback is automatically included in summaries
-3. **Manual review**: Everything else (neutral, insulting, other) requires manual approval
-4. **Aggregated summary**: Teachers see AI-generated themes, never individual feedback
-
-### Auto-Approval Criteria
-
-Feedback must be **specific** AND **actionable**:
-
 ```
-constructive: "too fast" - valid concern ✓
-constructive: "great explanations" - specific praise ✓
-constructive: "more examples would help" - actionable ✓
-
-neutral: "boring" - too vague
-neutral: "okay" - too brief  
-
-insulting: "teacher is worthless" - personal attack
-insulting: "good but he's lazy" - mixed (one bad = insulting)
+Student submits feedback → AI evaluates tone & quality
+        ↓
+[Constructive + Specific + Actionable] → Auto-approved to summary
+        ↓
+[Neutral / Insulting / Mixed] → Flagged for manual review
+        ↓
+Aggregated Summary → Teacher sees themes, not individuals
 ```
+
+### Feedback Classification
+
+| Type | Examples | Handling |
+|------|----------|----------|
+| ✅ Constructive | "too fast", "great explanations", "more examples" | Auto-approved |
+| ⚠️ Neutral | "boring", "okay", vague comments | Manual review |
+| 🚫 Insulting | Personal attacks, mixed feedback with insults | Blocked/review |
 
 ## Tech Stack
 
 | Category | Technology |
 |----------|-------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| UI | React 19 + Tailwind CSS |
-| Database | PostgreSQL + Prisma |
-| Auth | NextAuth.js |
-| AI | OpenRouter (Nemotron 3 Super, Nemotron Nano) |
+| Framework | Next.js 16.2 (App Router) |
+| Language | TypeScript 6.0 |
+| UI Library | React 19.2 |
+| Styling | Tailwind CSS 4.2 |
+| Database | PostgreSQL + Prisma 5.22 |
+| Auth | NextAuth.js 5.0 |
+| AI | OpenRouter (Nemotron 3 Super / Nano) |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+
+## Project Structure
+
+```
+constructive-feedback-for-teachers/
+├── prisma/
+│   ├── schema.prisma      # Database schema
+│   └── seed.ts           # Seed data
+├── public/                 # Static assets
+├── src/
+│   ├── app/              # Next.js App Router
+│   │   ├── actions/      # Server actions
+│   │   ├── api/          # API routes
+│   │   ├── contact/      # Contact page
+│   │   ├── login/        # Authentication
+│   │   ├── register/     # User registration
+│   │   └── teachers/     # Teacher dashboard
+│   ├── components/
+│   │   ├── home/         # Homepage components
+│   │   ├── layout/       # Layout components
+│   │   ├── providers/    # Context providers
+│   │   ├── shared/       # Shared components
+│   │   └── ui/           # UI components
+│   ├── data/
+│   │   └── site.ts       # Site configuration
+│   ├── lib/              # Utility functions
+│   └── types/            # TypeScript types
+├── next.config.ts         # Next.js configuration
+├── tailwind.config.ts     # Tailwind configuration
+├── tsconfig.json          # TypeScript configuration
+└── vitest.config.ts       # Vitest configuration
+```
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 20.0.0+
+- PostgreSQL database
+- npm or pnpm
+
+### Installation
+
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/ConstructiveFeedbackforTeachers.git
+cd ConstructiveFeedbackforTeachers
+
 # Install dependencies
 npm install
 
@@ -54,33 +103,64 @@ cp .env.example .env.local
 # Set up database
 npx prisma db push
 
-# Start dev server
+# (Optional) Seed with sample data
+npm run db:seed
+
+# Start development server
 npm run dev
 ```
 
-## Environment Variables
+### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | NextAuth secret |
-| `NEXTAUTH_URL` | App URL |
-| `OPENROUTER_API_KEY` | OpenRouter API key |
+Create a `.env.local` file with the following variables:
 
-## AI Models
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DATABASE_URL` | PostgreSQL connection string | ✅ |
+| `NEXTAUTH_SECRET` | NextAuth secret for session encryption | ✅ |
+| `NEXTAUTH_URL` | Application URL | ✅ |
+| `OPENROUTER_API_KEY` | OpenRouter API key for AI moderation | ✅ |
 
-Uses OpenRouter with 3-tier fallback:
-1. NVIDIA Nemotron 3 Super 120B
-2. NVIDIA Nemotron Nano 9B
-3. openrouter/free (ultimate fallback)
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Fix ESLint errors |
+| `npm run type-check` | Run TypeScript type checking |
+| `npm run format` | Format code with Prettier |
+| `npm run format:check` | Check code formatting |
+| `npm run test` | Run Vitest in watch mode |
+| `npm run test:run` | Run Vitest once |
+| `npm run db:generate` | Generate Prisma client |
+| `npm run db:push` | Push schema to database |
+| `npm run db:seed` | Seed database with sample data |
 
 ## Safety Features
 
-- **Mixed feedback blocked**: "good but he's lazy" = insulting (manual review)
-- **Individual feedback hidden**: Teachers only see summaries
-- **Conservative auto-approve**: Only constructive = auto-show
-- **AI falls back safely**: On error, defaults to manual review
+The platform implements multiple layers of protection:
+
+- **Constructive Threshold** — Feedback must be specific AND actionable to auto-approve
+- **Mixed Feedback Detection** — "Good but he's lazy" is flagged as insulting (manual review)
+- **Individual Privacy** — Teachers see only aggregated themes, never individual submissions
+- **Conservative Auto-Approval** — Only clearly constructive feedback reaches summaries
+- **Graceful AI Fallback** — On error, feedback defaults to manual review queue
+
+## AI Moderation
+
+The platform uses OpenRouter with intelligent fallback:
+
+1. **NVIDIA Nemotron 3 Super 120B** — Primary model for nuanced classification
+2. **NVIDIA Nemotron Nano 9B** — Fallback for faster processing
+3. **openrouter/free** — Ultimate fallback ensuring service continuity
 
 ## License
 
-MIT
+MIT License — Open source and free to use as a template.
+
+---
+
+Built with ❤️ to foster constructive teacher-student communication

@@ -1,5 +1,3 @@
-import { siteConfig } from '@/lib/constants';
-
 // ============================================
 // Site Data - Update this file with your info
 // ============================================
@@ -20,3 +18,6 @@ export const socialLinks = {
   facebook: 'https://facebook.com/joshua_argent',
   strava: 'https://www.strava.com/athletes/500534339',
 };
+
+// Re-export for convenience
+export { siteConfig } from '@/lib/constants';

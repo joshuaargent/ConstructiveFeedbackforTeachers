@@ -1,5 +1,11 @@
-import { forwardRef, type HTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
+import { forwardRef, type HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
+
+// ============================================
+// Types
+// ============================================
+
+type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
 // ============================================
 // Card Component
@@ -7,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
-  padding?: "none" | "sm" | "md" | "lg";
+  padding?: CardPadding;
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
@@ -43,7 +49,9 @@ Card.displayName = "Card";
 // Card Header
 // ============================================
 
-export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {}
+export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
 
 export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, ...props }, ref) => (
@@ -61,7 +69,9 @@ CardHeader.displayName = "CardHeader";
 // Card Title
 // ============================================
 
-export interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {}
+export interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
+  className?: string;
+}
 
 export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, ...props }, ref) => (
@@ -82,7 +92,9 @@ CardTitle.displayName = "CardTitle";
 // Card Description
 // ============================================
 
-export interface CardDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {}
+export interface CardDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
+  className?: string;
+}
 
 export const CardDescription = forwardRef<
   HTMLParagraphElement,
@@ -101,7 +113,9 @@ CardDescription.displayName = "CardDescription";
 // Card Content
 // ============================================
 
-export interface CardContentProps extends HTMLAttributes<HTMLDivElement> {}
+export interface CardContentProps extends HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
 
 export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, ...props }, ref) => (
@@ -115,7 +129,9 @@ CardContent.displayName = "CardContent";
 // Card Footer
 // ============================================
 
-export interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {}
+export interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
 
 export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
   ({ className, ...props }, ref) => (

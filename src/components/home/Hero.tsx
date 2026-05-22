@@ -12,9 +12,13 @@ const popularSubjects = [
 ];
 
 // ============================================
-// Homepage - Landing page for the app
+// Hero Component
 // ============================================
 
+/**
+ * Hero section for the homepage with call-to-action buttons
+ * and feature highlights
+ */
 export function Hero() {
   return (
     <section className="py-12 md:py-16 lg:py-20">
