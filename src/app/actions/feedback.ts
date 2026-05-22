@@ -6,6 +6,12 @@ import { moderateFeedback, generateTeacherSummary } from '@/lib/ai';
 import { revalidatePath } from 'next/cache';
 
 // ============================================
+// Development Logging Helper
+// ============================================
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// ============================================
 // Server Actions for Feedback
 // ============================================
 
@@ -36,10 +42,14 @@ export async function submitFeedback(teacherId: string, feedbackText: string) {
 
   // AI moderation
   let moderationResult;
-  console.log('[FEEDBACK] Starting AI moderation for:', feedbackText.substring(0, 50));
+  if (isDevelopment) {
+    console.log('[FEEDBACK] Starting AI moderation for:', feedbackText.substring(0, 50));
+  }
   try {
     moderationResult = await moderateFeedback(feedbackText);
-    console.log('[FEEDBACK] AI result:', JSON.stringify(moderationResult));
+    if (isDevelopment) {
+      console.log('[FEEDBACK] AI result:', JSON.stringify(moderationResult));
+    }
   } catch (aiError) {
     console.error('[FEEDBACK] AI moderation error:', aiError);
     // CRITICAL: When AI fails, default to 'other' which requires manual review

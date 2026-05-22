@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { siteConfig, footerNav } from '@/lib/constants';
-import { Rss, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 // ============================================
 // Footer Component

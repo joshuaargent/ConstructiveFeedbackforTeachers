@@ -14,6 +14,9 @@ const FREE_MODELS = [
 // Maximum retries for transient failures
 const MAX_RETRIES = 3;
 
+// Development mode flag for logging
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 // ============================================
 // Type definitions
 // ============================================
@@ -111,9 +114,11 @@ async function callOpenRouter(
 
       // Retry on rate limit (429) or server errors (500+) - try next model
       if ((response.status === 429 || response.status >= 500) && retryCount < MAX_RETRIES) {
-        console.log(
-          `[AI] Retrying with ${currentModel} after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`
-        );
+        if (isDevelopment) {
+          console.log(
+            `[AI] Retrying with ${currentModel} after ${response.status} error (attempt ${retryCount + 1}/${MAX_RETRIES})...`
+          );
+        }
         return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
       }
       throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
@@ -130,9 +135,11 @@ async function callOpenRouter(
   } catch (error) {
     // Retry on parse errors or network issues - try next model
     if (retryCount < MAX_RETRIES) {
-      console.log(
-        `[AI] Retrying after error with next model: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`
-      );
+      if (isDevelopment) {
+        console.log(
+          `[AI] Retrying after error with next model: ${error} (attempt ${retryCount + 1}/${MAX_RETRIES})`
+        );
+      }
       return callOpenRouter(userMessage, systemPrompt, retryCount + 1);
     }
     throw error;

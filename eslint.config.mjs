@@ -1,24 +1,44 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+// @ts-check
+import tseslint from "typescript-eslint";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+export default tseslint.config(
   {
-    rules: {
-      // Disable strict React hooks rule that flags legitimate use cases
-      'react-hooks/set-state-in-effect': 'off',
-    },
+    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
-
-export default eslintConfig;
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [...tseslint.configs.recommended],
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+    },
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        window: "readonly",
+        document: "readonly",
+        fetch: "readonly",
+        localStorage: "readonly",
+        navigator: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+        URL: "readonly",
+        NodeJS: "readonly",
+        React: "readonly",
+        HTMLDivElement: "readonly",
+        HTMLSpanElement: "readonly",
+        HTMLButtonElement: "readonly",
+        HTMLInputElement: "readonly",
+        HTMLTextAreaElement: "readonly",
+        HTMLHeadingElement: "readonly",
+        HTMLParagraphElement: "readonly",
+        KeyboardEvent: "readonly",
+        MediaQueryListEvent: "readonly",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-console": "warn",
+    },
+  }
+);
