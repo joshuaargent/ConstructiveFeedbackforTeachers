@@ -7,15 +7,15 @@
 ![Prisma](https://img.shields.io/badge/Prisma-5.22-2d3748)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-> A supportive platform where students share constructive feedback to help teachers grow — with AI-powered moderation to maintain respectful discourse.
+> A supportive platform where students share constructive feedback to help teachers grow - with AI powered moderation to maintain respectful discourse.
 
 ## Features
 
-- **AI-Powered Moderation** - Automatic filtering of feedback using OpenRouter's advanced language models
+- **AI Powered Moderation** - Automatic filtering of feedback using OpenRouter's advanced language models
 - **Constructive-First Approach** - Only truly helpful feedback reaches teachers automatically
 - **Privacy-Protected Summaries** - Teachers receive aggregated themes, never individual comments
 - **Multi-Layer Safety** - Blocks hate speech, personal attacks, and mixed feedback with insults
-- **3-Tier AI Fallback** - Reliable moderation with Nemotron Super → Nemotron Nano → Free tier
+- **3 Tier AI Fallback** - Reliable moderation with Nemotron Super → Nemotron Nano → Free tier
 - **Modern Tech Stack** - Built with Next.js 16, React 19, and Tailwind CSS
 
 ## How It Works
@@ -34,7 +34,7 @@ Aggregated Summary → Teacher sees themes, not individuals
 
 | Type | Examples | Handling |
 |------|----------|----------|
-| ✅ Constructive | "too fast", "great explanations", "more examples" | Auto-approved |
+| ✅ Constructive | "too fast", "great explanations", "more examples" | Auto approved |
 | ⚠️ Neutral | "boring", "okay", vague comments | Manual review |
 | 🚫 Insulting | Personal attacks, mixed feedback with insults | Blocked/review |
 
@@ -122,8 +122,8 @@ Create a `.env.local` file with the following variables:
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | ✅ |
-| `NEXTAUTH_SECRET` | NextAuth secret for session encryption | ✅ |
-| `NEXTAUTH_URL` | Application URL | ✅ |
+| `AUTH_SECRET` | NextAuth secret for session encryption | ✅ |
+| `NEXT_PUBLIC_APP_URL` | Application URL | ✅ |
 | `OPENROUTER_API_KEY` | OpenRouter API key for AI moderation | ✅ |
 
 ## Available Scripts
