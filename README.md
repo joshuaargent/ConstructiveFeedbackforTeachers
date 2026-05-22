@@ -1,6 +1,11 @@
 # Constructive Feedback for Teachers
 
-![Next.js](https://img.shields.io/badge/Next.js-16.2-black) ![React](https://img.shields.io/badge/React-19.2-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.2-38bdf8) ![Prisma](https://img.shields.io/badge/Prisma-5.22-2d3748) ![License](https://img.shields.io/badge/License-MIT-green)
+![Next.js](https://img.shields.io/badge/Next.js-16.2-black)
+![React](https://img.shields.io/badge/React-19.2-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4.2-38bdf8)
+![Prisma](https://img.shields.io/badge/Prisma-5.22-2d3748)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 > A supportive platform where students share constructive feedback to help teachers grow — with AI-powered moderation to maintain respectful discourse.
 
@@ -159,8 +164,14 @@ The platform uses OpenRouter with intelligent fallback:
 
 ## License
 
-MIT License - Open source and free to use as a template.
+MIT License - feel free to use this as a template.
+
+## Acknowledgments
+
+Built with [Next.js](https://nextjs.org), [Tailwind CSS](https://tailwindcss.com), and [Vercel](https://vercel.com).
 
 ---
 
-Built with ❤️ to foster constructive teacher-student communication
+<p align="center">
+  Built with ❤️ by <a href="https://joshuaargent.vercel.app">Joshua Argent</a>
+</p>
