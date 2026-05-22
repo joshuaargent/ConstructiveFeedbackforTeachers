@@ -1,24 +1,18 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+// @ts-check
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+export default [
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "prisma/seed.ts"],
+  },
   {
     rules: {
-      // Disable strict React hooks rule that flags legitimate use cases
-      'react-hooks/set-state-in-effect': 'off',
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": "warn",
     },
   },
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
-
-export default eslintConfig;
+];

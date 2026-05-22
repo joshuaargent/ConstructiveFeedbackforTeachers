@@ -56,8 +56,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     // Build variant styles with explicit text colors
-    let variantStyles = '';
-
+    let variantStyles: string;
+    
     switch (variant) {
       case 'primary':
         variantStyles = 'bg-accent text-white hover:bg-accent-hover shadow-sm';
