@@ -25,12 +25,11 @@ export function Hero() {
       <div className="container">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-text-primary text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            Constructive Feedback for{' '}
-            <span style={{ color: '#0D9488' }}>Teachers</span>
+            Constructive Feedback for <span style={{ color: '#0D9488' }}>Teachers</span>
           </h1>
           <p className="text-text-secondary mx-auto mt-6 max-w-xl text-lg md:text-xl">
-            A supportive platform where students can share feedback to help teachers grow.
-            All feedback is reviewed by AI to ensure it&apos;s constructive and helpful.
+            A supportive platform where students can share feedback to help teachers grow. All
+            feedback is reviewed by AI to ensure it&apos;s constructive and helpful.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
@@ -52,15 +51,13 @@ export function Hero() {
 
         {/* Quick Subject Access */}
         <div className="mt-12 text-center">
-          <p className="mb-4 text-sm font-medium text-text-secondary">
-            Or browse by subject:
-          </p>
+          <p className="text-text-secondary mb-4 text-sm font-medium">Or browse by subject:</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {popularSubjects.map(subject => (
+            {popularSubjects.map((subject) => (
               <Link
                 key={subject}
                 href={`/teachers?subject=${encodeURIComponent(subject)}`}
-                className="rounded-full border border-border bg-bg-card px-4 py-2 text-sm font-medium text-text-secondary transition-all duration-200 hover:border-accent hover:text-accent"
+                className="border-border bg-bg-card text-text-secondary hover:border-accent hover:text-accent rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200"
               >
                 {subject}
               </Link>
@@ -74,20 +71,16 @@ export function Hero() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-teal-50">
               <Users className="h-6 w-6 text-teal-600" />
             </div>
-            <h3 className="text-text-primary mb-2 text-lg font-semibold">
-              Pre-created Profiles
-            </h3>
+            <h3 className="text-text-primary mb-2 text-lg font-semibold">Pre Created Profiles</h3>
             <p className="text-text-secondary text-sm">
-              Teachers are pre-created in the system, ensuring quality and legitimacy.
+              Teachers are pre created in the system, ensuring quality and legitimacy.
             </p>
           </div>
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-teal-50">
               <Heart className="h-6 w-6 text-teal-600" />
             </div>
-            <h3 className="text-text-primary mb-2 text-lg font-semibold">
-              AI-Powered Moderation
-            </h3>
+            <h3 className="text-text-primary mb-2 text-lg font-semibold">AI Powered Moderation</h3>
             <p className="text-text-secondary text-sm">
               All feedback is reviewed to filter out harmful content and keep it constructive.
             </p>
@@ -96,9 +89,7 @@ export function Hero() {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-teal-50">
               <GraduationCap className="h-6 w-6 text-teal-600" />
             </div>
-            <h3 className="text-text-primary mb-2 text-lg font-semibold">
-              Growth-focused
-            </h3>
+            <h3 className="text-text-primary mb-2 text-lg font-semibold">Growth Focused</h3>
             <p className="text-text-secondary text-sm">
               Teachers see supportive summaries that help them improve, not judge them.
             </p>
