@@ -1,7 +1,6 @@
 # CODE & CREATOR AUDIT
 > Generated: May 2026  
 > Project: Constructive Feedback for Teachers
-> Type: Template Repository
 ---
 ## EXECUTIVE SUMMARY
 
